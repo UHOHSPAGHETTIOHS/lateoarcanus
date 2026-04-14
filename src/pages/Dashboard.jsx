@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import BreachChecker from './BreachChecker'
 import DataBrokers from './DataBrokers'
+import BigTech from './BigTech'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [aliases, setAliases] = useState([])
   const [loading, setLoading] = useState(true)
   const [activePage, setActivePage] = useState('dashboard')
-
 
   const fetchAliases = async (userId) => {
     const { data, error } = await supabase
@@ -76,12 +76,6 @@ export default function Dashboard() {
       <nav className="dash-nav">
         <div className="logo">LATEOARCANUS</div>
         <div className="nav-center">
-            <span
-  className={`nav-link ${activePage === 'brokers' ? 'active' : ''}`}
-  onClick={() => setActivePage('brokers')}
->
-  Data Brokers
-</span>
           <span
             className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActivePage('dashboard')}
@@ -94,6 +88,18 @@ export default function Dashboard() {
           >
             Breach Checker
           </span>
+          <span
+            className={`nav-link ${activePage === 'brokers' ? 'active' : ''}`}
+            onClick={() => setActivePage('brokers')}
+          >
+            Data Brokers
+          </span>
+          <span
+            className={`nav-link ${activePage === 'bigtech' ? 'active' : ''}`}
+            onClick={() => setActivePage('bigtech')}
+          >
+            Big Tech
+          </span>
         </div>
         <div className="nav-right">
           <span className="user-email">{user?.email}</span>
@@ -104,10 +110,12 @@ export default function Dashboard() {
       </nav>
 
       {activePage === 'breach' ? (
-  <BreachChecker />
-) : activePage === 'brokers' ? (
-  <DataBrokers />
-) : (
+        <BreachChecker />
+      ) : activePage === 'brokers' ? (
+        <DataBrokers />
+      ) : activePage === 'bigtech' ? (
+        <BigTech />
+      ) : (
         <div className="dash-container">
           <div className="dash-header">
             <div>

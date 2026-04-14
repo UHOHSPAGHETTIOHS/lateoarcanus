@@ -134,16 +134,6 @@ const BROKERS = [
     icon: '⚖️'
   },
   {
-    id: 'coredatabroker',
-    name: 'CoreLogic',
-    category: 'Data Broker',
-    dataCollected: ['Property Records', 'Financial', 'Address History'],
-    optOutUrl: 'https://www.corelogic.com/privacy-center/',
-    difficulty: 'hard',
-    estimatedTime: '30 days',
-    icon: '🏠'
-  },
-  {
     id: 'familytreenow',
     name: 'FamilyTreeNow',
     category: 'People Search',
@@ -184,6 +174,56 @@ const BROKERS = [
     icon: '🔮'
   },
   {
+    id: 'truepeoplesearch',
+    name: 'True People Search',
+    category: 'People Search',
+    dataCollected: ['Name', 'Address', 'Phone', 'Relatives'],
+    optOutUrl: 'https://www.truepeoplesearch.com/removal',
+    difficulty: 'easy',
+    estimatedTime: '24 hours',
+    icon: '👥'
+  },
+  {
+    id: 'fastpeoplesearch',
+    name: 'Fast People Search',
+    category: 'People Search',
+    dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+    optOutUrl: 'https://www.fastpeoplesearch.com/removal',
+    difficulty: 'easy',
+    estimatedTime: '24 hours',
+    icon: '⚡'
+  },
+  {
+    id: 'thatsthem',
+    name: 'ThatsThem',
+    category: 'People Search',
+    dataCollected: ['Name', 'Address', 'Phone', 'Email', 'Social Media'],
+    optOutUrl: 'https://thatsthem.com/optout',
+    difficulty: 'easy',
+    estimatedTime: '24-48 hours',
+    icon: '🎯'
+  },
+  {
+    id: 'nuwber',
+    name: 'Nuwber',
+    category: 'People Search',
+    dataCollected: ['Name', 'Address', 'Phone', 'Age'],
+    optOutUrl: 'https://nuwber.com/removal/link',
+    difficulty: 'easy',
+    estimatedTime: '24-48 hours',
+    icon: '📊'
+  },
+  {
+    id: 'zoominfo',
+    name: 'ZoomInfo',
+    category: 'Data Broker',
+    dataCollected: ['Name', 'Email', 'Phone', 'Company', 'Job Title'],
+    optOutUrl: 'https://www.zoominfo.com/about/privacy/privacy-controls',
+    difficulty: 'medium',
+    estimatedTime: '3-5 days',
+    icon: '🔍'
+  },
+  {
     id: 'publicrecordsnow',
     name: 'Public Records Now',
     category: 'Public Records',
@@ -202,7 +242,957 @@ const BROKERS = [
     difficulty: 'medium',
     estimatedTime: '3-5 days',
     icon: '🚨'
-  }
+  },
+  {
+  id: 'equifax',
+  name: 'Equifax',
+  category: 'Data Broker',
+  dataCollected: ['Credit History', 'Financial Data', 'Address', 'Employment'],
+  optOutUrl: 'https://www.equifax.com/personal/privacy/',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '💳'
+},
+{
+  id: 'experian',
+  name: 'Experian',
+  category: 'Data Broker',
+  dataCollected: ['Credit History', 'Financial Data', 'Address', 'Employment'],
+  optOutUrl: 'https://www.experian.com/privacy/center.html',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '💳'
+},
+{
+  id: 'transunion',
+  name: 'TransUnion',
+  category: 'Data Broker',
+  dataCollected: ['Credit History', 'Financial Data', 'Address', 'Employment'],
+  optOutUrl: 'https://www.transunion.com/legal/privacy-center',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '💳'
+},
+{
+  id: 'oracle',
+  name: 'Oracle Data Cloud',
+  category: 'Data Broker',
+  dataCollected: ['Purchase History', 'Location', 'Demographics', 'Behavior'],
+  optOutUrl: 'https://datacloudoptout.oracle.com/optout',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '☁️'
+},
+{
+  id: 'corelogic',
+  name: 'CoreLogic',
+  category: 'Data Broker',
+  dataCollected: ['Property Records', 'Financial', 'Address History'],
+  optOutUrl: 'https://www.corelogic.com/privacy-center/',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '🏠'
+},
+{
+  id: 'verisk',
+  name: 'Verisk',
+  category: 'Data Broker',
+  dataCollected: ['Insurance Data', 'Financial', 'Property Records'],
+  optOutUrl: 'https://www.verisk.com/privacy/',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '📈'
+},
+{
+  id: 'thomsonreuters',
+  name: 'Thomson Reuters',
+  category: 'Data Broker',
+  dataCollected: ['Legal Records', 'Financial', 'Professional Data'],
+  optOutUrl: 'https://www.thomsonreuters.com/en/privacy-statement.html',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '📰'
+},
+{
+  id: 'nielsen',
+  name: 'Nielsen',
+  category: 'Data Broker',
+  dataCollected: ['Media Consumption', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.nielsen.com/us/en/legal/privacy-statement/nielsen-us-opt-out/',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '📺'
+},
+{
+  id: 'comscore',
+  name: 'comScore',
+  category: 'Data Broker',
+  dataCollected: ['Browsing History', 'Demographics', 'Media Consumption'],
+  optOutUrl: 'https://www.comscore.com/About/Privacy-Policy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '📊'
+},
+{
+  id: 'neustar',
+  name: 'Neustar',
+  category: 'Data Broker',
+  dataCollected: ['Phone Data', 'Demographics', 'Location'],
+  optOutUrl: 'https://www.home.neustar/privacy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '📡'
+},
+{
+  id: 'liveramp',
+  name: 'LiveRamp',
+  category: 'Data Broker',
+  dataCollected: ['Identity Data', 'Purchase History', 'Demographics'],
+  optOutUrl: 'https://liveramp.com/opt_out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🔗'
+},
+{
+  id: 'lotame',
+  name: 'Lotame',
+  category: 'Data Broker',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Interest Profiles'],
+  optOutUrl: 'https://www.lotame.com/about-lotame/privacy/lotames-products-privacy-policy/opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📊'
+},
+{
+  id: 'bluekai',
+  name: 'BlueKai',
+  category: 'Data Broker',
+  dataCollected: ['Behavioral Data', 'Purchase Intent', 'Demographics'],
+  optOutUrl: 'https://www.oracle.com/legal/privacy/marketing-cloud-data-cloud-privacy-policy.html',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '🔵'
+},
+{
+  id: 'mediamath',
+  name: 'MediaMath',
+  category: 'Data Broker',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Ad Targeting Data'],
+  optOutUrl: 'https://www.mediamath.com/privacy-policy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📐'
+},
+{
+  id: 'quantcast',
+  name: 'Quantcast',
+  category: 'Data Broker',
+  dataCollected: ['Browsing History', 'Demographics', 'Interest Profiles'],
+  optOutUrl: 'https://www.quantcast.com/opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📉'
+},
+{
+  id: 'tapad',
+  name: 'Tapad',
+  category: 'Data Broker',
+  dataCollected: ['Device Data', 'Behavioral Data', 'Demographics'],
+  optOutUrl: 'https://www.tapad.com/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📱'
+},
+{
+  id: 'iqvia',
+  name: 'IQVIA',
+  category: 'Data Broker',
+  dataCollected: ['Health Data', 'Prescription Data', 'Demographics'],
+  optOutUrl: 'https://www.iqvia.com/about-us/privacy/individual-rights-request',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '💊'
+},
+{
+  id: 'alliant',
+  name: 'Alliant',
+  category: 'Data Broker',
+  dataCollected: ['Purchase History', 'Financial Data', 'Demographics'],
+  optOutUrl: 'https://www.alliantdata.com/privacy-policy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📋'
+},
+{
+  id: 'cardlytics',
+  name: 'Cardlytics',
+  category: 'Data Broker',
+  dataCollected: ['Purchase History', 'Financial Data', 'Demographics'],
+  optOutUrl: 'https://www.cardlytics.com/consumer-opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '💳'
+},
+{
+  id: 'datalogix',
+  name: 'Datalogix',
+  category: 'Data Broker',
+  dataCollected: ['Purchase History', 'Demographics', 'Location'],
+  optOutUrl: 'https://www.oracle.com/legal/privacy/privacy-policy.html',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📊'
+},
+{
+  id: 'crossix',
+  name: 'Crossix',
+  category: 'Data Broker',
+  dataCollected: ['Health Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.crossix.com/privacy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '🏥'
+},
+{
+  id: 'drawbridge',
+  name: 'Drawbridge',
+  category: 'Data Broker',
+  dataCollected: ['Device Data', 'Behavioral Data', 'Demographics'],
+  optOutUrl: 'https://drawbridge.com/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🌉'
+},
+{
+  id: 'zabasearch',
+  name: 'ZabaSearch',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Age'],
+  optOutUrl: 'https://www.zabasearch.com/block_records/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔍'
+},
+{
+  id: 'peoplesmart',
+  name: 'PeopleSmart',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.peoplesmart.com/optout-go',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '👤'
+},
+{
+  id: 'anywho',
+  name: 'AnyWho',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://www.anywho.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '📞'
+},
+{
+  id: 'backgroundalert',
+  name: 'Background Alert',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Criminal Records', 'Phone'],
+  optOutUrl: 'https://www.backgroundalert.com/optout/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🚨'
+},
+{
+  id: 'clustrmaps',
+  name: 'ClustrMaps',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Location Data'],
+  optOutUrl: 'https://clustrmaps.com/bl/opt-out',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🗺️'
+},
+{
+  id: 'dataveria',
+  name: 'Dataveria',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://dataveria.com/ng/control/privacy',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '📋'
+},
+{
+  id: 'dobsearch',
+  name: 'DOBSearch',
+  category: 'People Search',
+  dataCollected: ['Name', 'Date of Birth', 'Address', 'Phone'],
+  optOutUrl: 'https://www.dobsearch.com/people-finder/pf_optout.php',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🎂'
+},
+{
+  id: 'gladiknow',
+  name: 'Glad I Know',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.gladiknow.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '👋'
+},
+{
+  id: 'idtrue',
+  name: 'IDTrue',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Criminal Records'],
+  optOutUrl: 'https://www.idtrue.com/optout/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🪪'
+},
+{
+  id: 'infotracer',
+  name: 'InfoTracer',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Social Media'],
+  optOutUrl: 'https://infotracer.com/optout/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔎'
+},
+{
+  id: 'iverify',
+  name: 'iVerify',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://iverify.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '✅'
+},
+{
+  id: 'locateplus',
+  name: 'LocatePlus',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Criminal Records'],
+  optOutUrl: 'https://locateplus.com/optout',
+  difficulty: 'medium',
+  estimatedTime: '3-5 days',
+  icon: '📍'
+},
+{
+  id: 'officialusa',
+  name: 'OfficialUSA',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://www.officialusa.com/optout/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🇺🇸'
+},
+{
+  id: 'peoplefindfast',
+  name: 'People Find Fast',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.peoplefindfast.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '⚡'
+},
+{
+  id: 'peoplelooker',
+  name: 'PeopleLooker',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Criminal Records'],
+  optOutUrl: 'https://www.peoplelooker.com/opt-out',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔭'
+},
+{
+  id: 'persopo',
+  name: 'Persopo',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.persopo.com/opt-out.html',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '👤'
+},
+{
+  id: 'privaterecords',
+  name: 'Private Records',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Criminal Records', 'Phone'],
+  optOutUrl: 'https://www.privaterecords.net/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔒'
+},
+{
+  id: 'propeoplesearch',
+  name: 'Pro People Search',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.propeoplesearch.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔍'
+},
+{
+  id: 'quickpeopletrace',
+  name: 'Quick People Trace',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://www.quickpeopletrace.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '⚡'
+},
+{
+  id: 'rehold',
+  name: 'Rehold',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://rehold.com/privacy',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🏠'
+},
+{
+  id: 'reversephonecheck',
+  name: 'Reverse Phone Check',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://www.reversephonecheck.com/opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '📞'
+},
+{
+  id: 'searchpeoplefree',
+  name: 'Search People Free',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://www.searchpeoplefree.com/opt-out',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔍'
+},
+{
+  id: 'smartbackgroundchecks',
+  name: 'Smart Background Checks',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Criminal Records', 'Phone'],
+  optOutUrl: 'https://www.smartbackgroundchecks.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '✅'
+},
+{
+  id: 'spyfly',
+  name: 'SpyFly',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Criminal Records'],
+  optOutUrl: 'https://www.spyfly.com/help-center/remove-information',
+  difficulty: 'medium',
+  estimatedTime: '3-5 days',
+  icon: '🕵️'
+},
+{
+  id: 'staterecords',
+  name: 'State Records',
+  category: 'People Search',
+  dataCollected: ['Criminal Records', 'Address', 'Phone'],
+  optOutUrl: 'https://staterecords.org/opt-out.php',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🏛️'
+},
+{
+  id: 'verecor',
+  name: 'Verecor',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://verecor.com/ng/control/privacy',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '✔️'
+},
+{
+  id: 'veripages',
+  name: 'VeriPages',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone'],
+  optOutUrl: 'https://veripages.com/page/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '📄'
+},
+{
+  id: 'voterrecords',
+  name: 'Voter Records',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Voting History', 'Political Affiliation'],
+  optOutUrl: 'https://voterrecords.com/optout',
+  difficulty: 'medium',
+  estimatedTime: '3-5 days',
+  icon: '🗳️'
+},
+{
+  id: 'xlek',
+  name: 'Xlek',
+  category: 'People Search',
+  dataCollected: ['Name', 'Address', 'Phone', 'Email'],
+  optOutUrl: 'https://xlek.com/optout',
+  difficulty: 'easy',
+  estimatedTime: '24-48 hours',
+  icon: '🔍'
+},
+{
+  id: 'harte-hanks',
+  name: 'Harte-Hanks',
+  category: 'Marketing',
+  dataCollected: ['Purchase History', 'Demographics', 'Behavioral Data'],
+  optOutUrl: 'https://www.harte-hanks.com/privacy-policy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📬'
+},
+{
+  id: 'merkle',
+  name: 'Merkle',
+  category: 'Marketing',
+  dataCollected: ['Purchase History', 'Demographics', 'Behavioral Data'],
+  optOutUrl: 'https://www.merkleinc.com/privacy-policy',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📊'
+},
+{
+  id: 'conversant',
+  name: 'Conversant',
+  category: 'Marketing',
+  dataCollected: ['Purchase History', 'Behavioral Data', 'Demographics'],
+  optOutUrl: 'https://www.conversantmedia.com/legal/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '💬'
+},
+{
+  id: 'dataxu',
+  name: 'DataXu',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Ad Targeting Data'],
+  optOutUrl: 'https://www.dataxu.com/privacy-policy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📈'
+},
+{
+  id: 'dun-bradstreet',
+  name: 'Dun and Bradstreet',
+  category: 'Marketing',
+  dataCollected: ['Business Data', 'Financial Data', 'Professional Data'],
+  optOutUrl: 'https://www.dnb.com/utility-pages/ccpa-dns.html',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '🏢'
+},
+{
+  id: 'inmarket',
+  name: 'InMarket',
+  category: 'Marketing',
+  dataCollected: ['Location Data', 'Purchase History', 'Behavioral Data'],
+  optOutUrl: 'https://inmarket.com/ccpa-opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🛒'
+},
+{
+  id: 'kochava',
+  name: 'Kochava',
+  category: 'Marketing',
+  dataCollected: ['Device Data', 'Location', 'App Usage'],
+  optOutUrl: 'https://www.kochava.com/support-privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📱'
+},
+{
+  id: 'placed',
+  name: 'Placed',
+  category: 'Marketing',
+  dataCollected: ['Location Data', 'Behavioral Data', 'Demographics'],
+  optOutUrl: 'https://www.placed.com/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📍'
+},
+{
+  id: 'salesforce-dmp',
+  name: 'Salesforce DMP',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.salesforce.com/company/privacy/full_privacy/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '☁️'
+},
+{
+  id: 'semcasting',
+  name: 'Semcasting',
+  category: 'Marketing',
+  dataCollected: ['Demographics', 'Location', 'Purchase History'],
+  optOutUrl: 'https://semcasting.com/optout/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📡'
+},
+{
+  id: 'sharethrough',
+  name: 'Sharethrough',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Ad Data'],
+  optOutUrl: 'https://www.sharethrough.com/privacy-center/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📢'
+},
+{
+  id: 'stirista',
+  name: 'Stirista',
+  category: 'Marketing',
+  dataCollected: ['Email Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.stirista.com/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📧'
+},
+{
+  id: 'taboola',
+  name: 'Taboola',
+  category: 'Marketing',
+  dataCollected: ['Browsing History', 'Behavioral Data', 'Demographics'],
+  optOutUrl: 'https://www.taboola.com/privacy-policy#optout',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📰'
+},
+{
+  id: 'throtle',
+  name: 'Throtle',
+  category: 'Marketing',
+  dataCollected: ['Identity Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://throtle.io/privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🎯'
+},
+{
+  id: 'towerdata',
+  name: 'TowerData',
+  category: 'Marketing',
+  dataCollected: ['Email Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.towerdata.com/privacy-policy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🗼'
+},
+{
+  id: 'tradedesk',
+  name: 'The Trade Desk',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Ad Targeting'],
+  optOutUrl: 'https://www.thetradedesk.com/us/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '💹'
+},
+{
+  id: 'truoptik',
+  name: 'TruOptik',
+  category: 'Marketing',
+  dataCollected: ['Streaming Data', 'Demographics', 'Behavioral Data'],
+  optOutUrl: 'https://truoptik.com/privacy-policy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📺'
+},
+{
+  id: 'twilio',
+  name: 'Twilio Segment',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Purchase History'],
+  optOutUrl: 'https://www.twilio.com/legal/privacy',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '💬'
+},
+{
+  id: 'viant',
+  name: 'Viant',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Location'],
+  optOutUrl: 'https://www.viantinc.com/privacy-policy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📊'
+},
+{
+  id: 'weborama',
+  name: 'Weborama',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Interest Profiles'],
+  optOutUrl: 'https://weborama.com/privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🌐'
+},
+{
+  id: 'windfall',
+  name: 'Windfall',
+  category: 'Marketing',
+  dataCollected: ['Financial Data', 'Demographics', 'Wealth Estimates'],
+  optOutUrl: 'https://www.windfall.com/privacy-policy',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '💰'
+},
+{
+  id: 'xandr',
+  name: 'Xandr',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Ad Targeting'],
+  optOutUrl: 'https://www.xandr.com/privacy/platform-privacy-policy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📡'
+},
+{
+  id: 'yodlee',
+  name: 'Yodlee',
+  category: 'Marketing',
+  dataCollected: ['Financial Data', 'Purchase History', 'Banking Data'],
+  optOutUrl: 'https://www.yodlee.com/legal/yodlee-privacy-policy',
+  difficulty: 'hard',
+  estimatedTime: '30 days',
+  icon: '🏦'
+},
+{
+  id: 'addthis',
+  name: 'AddThis',
+  category: 'Marketing',
+  dataCollected: ['Browsing History', 'Social Sharing Data', 'Demographics'],
+  optOutUrl: 'https://www.addthis.com/privacy/opt-out/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '➕'
+},
+{
+  id: 'adsquare',
+  name: 'Adsquare',
+  category: 'Marketing',
+  dataCollected: ['Location Data', 'Demographics', 'Behavioral Data'],
+  optOutUrl: 'https://www.adsquare.com/privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📍'
+},
+{
+  id: 'exelate',
+  name: 'eXelate',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Interest Profiles'],
+  optOutUrl: 'https://exelate.com/privacy/optout-form/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📊'
+},
+{
+  id: 'krux',
+  name: 'Krux Digital',
+  category: 'Marketing',
+  dataCollected: ['Behavioral Data', 'Demographics', 'Interest Profiles'],
+  optOutUrl: 'https://krux.com/privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🔵'
+},
+{
+  id: 'google',
+  name: 'Google',
+  category: 'Big Tech',
+  dataCollected: ['Search History', 'Location', 'Gmail', 'YouTube', 'Health Data'],
+  optOutUrl: 'https://myaccount.google.com/data-and-privacy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '🔍'
+},
+{
+  id: 'meta',
+  name: 'Meta / Facebook',
+  category: 'Big Tech',
+  dataCollected: ['Posts', 'Messages', 'Location', 'Facial Recognition', 'Political Views'],
+  optOutUrl: 'https://www.facebook.com/privacy/center',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '👥'
+},
+{
+  id: 'amazon',
+  name: 'Amazon',
+  category: 'Big Tech',
+  dataCollected: ['Purchase History', 'Alexa Recordings', 'Financial Data', 'Ring footage'],
+  optOutUrl: 'https://www.amazon.com/privacy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '📦'
+},
+{
+  id: 'microsoft',
+  name: 'Microsoft',
+  category: 'Big Tech',
+  dataCollected: ['Documents', 'Emails', 'LinkedIn Data', 'Gaming Data', 'Keystrokes'],
+  optOutUrl: 'https://account.microsoft.com/privacy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '💻'
+},
+{
+  id: 'apple',
+  name: 'Apple',
+  category: 'Big Tech',
+  dataCollected: ['Location', 'Health Data', 'Face ID', 'Siri Recordings', 'Purchase History'],
+  optOutUrl: 'https://privacy.apple.com',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🍎'
+},
+{
+  id: 'twitter',
+  name: 'Twitter / X',
+  category: 'Big Tech',
+  dataCollected: ['Tweets', 'DMs', 'Political Views', 'Location', 'Phone Number'],
+  optOutUrl: 'https://twitter.com/settings/privacy_and_safety',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🐦'
+},
+{
+  id: 'tiktok',
+  name: 'TikTok',
+  category: 'Big Tech',
+  dataCollected: ['Biometrics', 'Location', 'Clipboard', 'Contacts', 'Keystroke Patterns'],
+  optOutUrl: 'https://www.tiktok.com/legal/privacy-policy',
+  difficulty: 'medium',
+  estimatedTime: '30 days',
+  icon: '🎵'
+},
+{
+  id: 'spotify',
+  name: 'Spotify',
+  category: 'Big Tech',
+  dataCollected: ['Listening History', 'Location', 'Emotional State', 'Demographics'],
+  optOutUrl: 'https://www.spotify.com/account/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🎧'
+},
+{
+  id: 'linkedin',
+  name: 'LinkedIn',
+  category: 'Big Tech',
+  dataCollected: ['Work History', 'Salary Data', 'Professional Network', 'Job Searches'],
+  optOutUrl: 'https://www.linkedin.com/psettings/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '💼'
+},
+{
+  id: 'snapchat',
+  name: 'Snapchat',
+  category: 'Big Tech',
+  dataCollected: ['Location', 'Facial Recognition', 'Photos', 'Social Network'],
+  optOutUrl: 'https://www.snapchat.com/privacy/privacy-controls',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '👻'
+},
+{
+  id: 'netflix',
+  name: 'Netflix',
+  category: 'Big Tech',
+  dataCollected: ['Viewing History', 'Demographics', 'Device Data', 'Payment Info'],
+  optOutUrl: 'https://www.netflix.com/account/security',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🎬'
+},
+{
+  id: 'uber',
+  name: 'Uber',
+  category: 'Big Tech',
+  dataCollected: ['Location History', 'Payment Data', 'Trip History', 'Device Data'],
+  optOutUrl: 'https://privacy.uber.com/privacy/center',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🚗'
+},
+{
+  id: 'airbnb',
+  name: 'Airbnb',
+  category: 'Big Tech',
+  dataCollected: ['Location', 'Payment Data', 'Identity Documents', 'Travel History'],
+  optOutUrl: 'https://www.airbnb.com/help/article/2855',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🏠'
+},
+{
+  id: 'pinterest',
+  name: 'Pinterest',
+  category: 'Big Tech',
+  dataCollected: ['Interests', 'Browsing History', 'Demographics', 'Purchase Intent'],
+  optOutUrl: 'https://www.pinterest.com/settings/privacy/',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '📌'
+},
+{
+  id: 'reddit',
+  name: 'Reddit',
+  category: 'Big Tech',
+  dataCollected: ['Posts', 'Comments', 'Interests', 'Political Views', 'Browsing'],
+  optOutUrl: 'https://www.reddit.com/settings/privacy',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🤖'
+},
+{
+  id: 'adobe',
+  name: 'Adobe',
+  category: 'Big Tech',
+  dataCollected: ['Documents', 'Creative Work', 'Usage Patterns', 'Payment Data'],
+  optOutUrl: 'https://www.adobe.com/privacy/opt-out.html',
+  difficulty: 'easy',
+  estimatedTime: '7 days',
+  icon: '🎨'
+},
+{
+  id: 'samsung',
+  name: 'Samsung',
+  category: 'Big Tech',
+  dataCollected: ['Device Usage', 'Location', 'Health Data', 'Smart TV Viewing'],
+  optOutUrl: 'https://www.samsung.com/us/account/privacy-checkup/',
+  difficulty: 'medium',
+  estimatedTime: '14 days',
+  icon: '📱'
+}
 ]
 
 const getDifficultyColor = (difficulty) => {
@@ -230,6 +1220,7 @@ export default function DataBrokers() {
   const [filter, setFilter] = useState('all')
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [selectedBroker, setSelectedBroker] = useState(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -298,6 +1289,7 @@ export default function DataBrokers() {
         </p>
       </div>
 
+      {/* Auto Removal Component */}
       <AutoRemoval />
 
       {/* Progress Section */}
@@ -315,7 +1307,7 @@ export default function DataBrokers() {
           marginBottom: '20px'
         }}>
           <div>
-            <h3 style={{marginBottom: '5px'}}>Removal Progress</h3>
+            <h3 style={{marginBottom: '5px'}}>Manual Removal Progress</h3>
             <p style={{color: '#555', fontSize: '0.85rem'}}>
               {completed.length} of {BROKERS.length} brokers removed
             </p>
@@ -349,78 +1341,48 @@ export default function DataBrokers() {
           gap: '20px',
           marginTop: '20px'
         }}>
-          <div style={{
-            flex: 1,
-            background: '#0a0a0a',
-            borderRadius: '8px',
-            padding: '15px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '1.5rem',
-              fontWeight: '800',
-              color: '#4aff88',
-              marginBottom: '4px'
+          {[
+            {
+              label: 'Removed',
+              value: completed.length,
+              color: '#4aff88'
+            },
+            {
+              label: 'Remaining',
+              value: BROKERS.length - completed.length,
+              color: '#ff6b6b'
+            },
+            {
+              label: 'Total',
+              value: BROKERS.length,
+              color: '#4a9eff'
+            }
+          ].map(stat => (
+            <div key={stat.label} style={{
+              flex: 1,
+              background: '#0a0a0a',
+              borderRadius: '8px',
+              padding: '15px',
+              textAlign: 'center'
             }}>
-              {completed.length}
+              <div style={{
+                fontSize: '1.5rem',
+                fontWeight: '800',
+                color: stat.color,
+                marginBottom: '4px'
+              }}>
+                {stat.value}
+              </div>
+              <div style={{
+                color: '#444',
+                fontSize: '0.75rem',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                {stat.label}
+              </div>
             </div>
-            <div style={{
-              color: '#444',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Removed
-            </div>
-          </div>
-          <div style={{
-            flex: 1,
-            background: '#0a0a0a',
-            borderRadius: '8px',
-            padding: '15px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '1.5rem',
-              fontWeight: '800',
-              color: '#ff6b6b',
-              marginBottom: '4px'
-            }}>
-              {BROKERS.length - completed.length}
-            </div>
-            <div style={{
-              color: '#444',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Remaining
-            </div>
-          </div>
-          <div style={{
-            flex: 1,
-            background: '#0a0a0a',
-            borderRadius: '8px',
-            padding: '15px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '1.5rem',
-              fontWeight: '800',
-              color: '#4a9eff',
-              marginBottom: '4px'
-            }}>
-              {BROKERS.length}
-            </div>
-            <div style={{
-              color: '#444',
-              fontSize: '0.75rem',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Total Brokers
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -462,8 +1424,12 @@ export default function DataBrokers() {
           <div
             key={broker.id}
             style={{
-              background: completed.includes(broker.id) ? '#0a1a0a' : '#111',
-              border: `1px solid ${completed.includes(broker.id) ? '#1a3a1a' : '#1e1e1e'}`,
+              background: completed.includes(broker.id)
+                ? '#0a1a0a'
+                : '#111',
+              border: `1px solid ${completed.includes(broker.id)
+                ? '#1a3a1a'
+                : '#1e1e1e'}`,
               borderRadius: '12px',
               padding: '20px 25px',
               display: 'flex',
@@ -488,7 +1454,9 @@ export default function DataBrokers() {
                   marginBottom: '5px',
                   flexWrap: 'wrap'
                 }}>
-                  <span style={{fontWeight: '700'}}>{broker.name}</span>
+                  <span style={{fontWeight: '700'}}>
+                    {broker.name}
+                  </span>
                   <span style={{
                     fontSize: '0.7rem',
                     padding: '2px 8px',
@@ -558,8 +1526,12 @@ export default function DataBrokers() {
                   background: completed.includes(broker.id)
                     ? '#0a1a0a'
                     : 'transparent',
-                  border: `1px solid ${completed.includes(broker.id) ? '#1a3a1a' : '#222'}`,
-                  color: completed.includes(broker.id) ? '#4aff88' : '#444',
+                  border: `1px solid ${completed.includes(broker.id)
+                    ? '#1a3a1a'
+                    : '#222'}`,
+                  color: completed.includes(broker.id)
+                    ? '#4aff88'
+                    : '#444',
                   padding: '8px 16px',
                   borderRadius: '6px',
                   cursor: 'pointer',
@@ -585,7 +1557,7 @@ export default function DataBrokers() {
         color: '#4a9eff',
         fontSize: '0.85rem'
       }}>
-        🔄 Brokers may re-add your data over time. 
+        🔄 Brokers may re-add your data over time.
         Check back monthly to stay protected.
       </div>
     </div>
