@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
+import BreachChecker from './BreachChecker'
+import DataBrokers from './DataBrokers'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [aliases, setAliases] = useState([])
   const [loading, setLoading] = useState(true)
+  const [activePage, setActivePage] = useState('dashboard')
+
 
   const fetchAliases = async (userId) => {
     const { data, error } = await supabase
@@ -13,7 +17,6 @@ export default function Dashboard() {
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
-    console.log('Fetch result:', data, error)
     if (!error) setAliases(data)
     setLoading(false)
   }
@@ -72,6 +75,26 @@ export default function Dashboard() {
     <div className="dashboard">
       <nav className="dash-nav">
         <div className="logo">LATEOARCANUS</div>
+        <div className="nav-center">
+            <span
+  className={`nav-link ${activePage === 'brokers' ? 'active' : ''}`}
+  onClick={() => setActivePage('brokers')}
+>
+  Data Brokers
+</span>
+          <span
+            className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActivePage('dashboard')}
+          >
+            Aliases
+          </span>
+          <span
+            className={`nav-link ${activePage === 'breach' ? 'active' : ''}`}
+            onClick={() => setActivePage('breach')}
+          >
+            Breach Checker
+          </span>
+        </div>
         <div className="nav-right">
           <span className="user-email">{user?.email}</span>
           <button className="sign-out" onClick={handleSignOut}>
@@ -80,64 +103,70 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div className="dash-container">
-        <div className="dash-header">
-          <div>
-            <h1>Your Hidden Identities</h1>
-            <p className="dash-sub">
-              Each alias forwards to your real email - 
-              sites never see who you really are
-            </p>
+      {activePage === 'breach' ? (
+  <BreachChecker />
+) : activePage === 'brokers' ? (
+  <DataBrokers />
+) : (
+        <div className="dash-container">
+          <div className="dash-header">
+            <div>
+              <h1>Your Hidden Identities</h1>
+              <p className="dash-sub">
+                Each alias forwards to your real email -
+                sites never see who you really are
+              </p>
+            </div>
+            <button className="button" onClick={generateAlias}>
+              + New Alias
+            </button>
           </div>
-          <button className="button" onClick={generateAlias}>
-            + New Alias
-          </button>
-        </div>
 
-        <div className="stats-row">
-          <div className="stat-box">
-            <div className="stat-number">{aliases.length}</div>
-            <div className="stat-label">Active Aliases</div>
+          <div className="stats-row">
+            <div className="stat-box">
+              <div className="stat-number">{aliases.length}</div>
+              <div className="stat-label">Active Aliases</div>
+            </div>
+            <div className="stat-box">
+              <div className="stat-number">0</div>
+              <div className="stat-label">Emails Forwarded</div>
+            </div>
+            <div className="stat-box">
+              <div className="stat-number">0</div>
+              <div className="stat-label">Trackers Blocked</div>
+            </div>
           </div>
-          <div className="stat-box">
-            <div className="stat-number">0</div>
-            <div className="stat-label">Emails Forwarded</div>
-          </div>
-          <div className="stat-box">
-            <div className="stat-number">0</div>
-            <div className="stat-label">Trackers Blocked</div>
-          </div>
-        </div>
 
-        {aliases.length === 0 ? (
-          <div className="empty-state">
-            <h3>No aliases yet</h3>
-            <p>Create your first hidden email identity above</p>
-          </div>
-        ) : (
-          <div className="aliases-list">
-            {aliases.map((a) => (
-              <div key={a.id} className="alias-card">
-                <div className="alias-info">
-                  <div className="alias-email">{a.alias}</div>
-                  <div className="alias-date">
-                    Created {new Date(a.created_at).toLocaleDateString()}
+          {aliases.length === 0 ? (
+            <div className="empty-state">
+              <h3>No aliases yet</h3>
+              <p>Create your first hidden email identity above</p>
+            </div>
+          ) : (
+            <div className="aliases-list">
+              {aliases.map((a) => (
+                <div key={a.id} className="alias-card">
+                  <div className="alias-info">
+                    <div className="alias-email">{a.alias}</div>
+                    <div className="alias-date">
+                      Created {new Date(a.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="alias-actions">
+                    <div className="alias-status active">Active</div>
+                    <button
+                      className="delete-btn"
+                      onClick={() => deleteAlias(a.id)}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div className="alias-actions">
-                  <div className="alias-status active">Active</div>
-                  <button
-                    className="delete-btn"
-                    onClick={() => deleteAlias(a.id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

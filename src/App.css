@@ -295,3 +295,177 @@ body {
   border: 1px solid #1a3a1a;
   color: #4aff88;
 }
+/* TOOL STYLES */
+.tool-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 50px 20px;
+}
+
+.tool-header {
+  margin-bottom: 40px;
+}
+
+.tool-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.tool-sub {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.tool-card {
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 16px;
+  padding: 40px;
+}
+
+.tool-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.results {
+  margin-top: 30px;
+}
+
+.safe-box {
+  text-align: center;
+  padding: 40px;
+  background: #0a1a0a;
+  border: 1px solid #1a3a1a;
+  border-radius: 12px;
+}
+
+.safe-icon {
+  font-size: 3rem;
+  color: #4aff88;
+  margin-bottom: 15px;
+}
+
+.safe-box h3 {
+  color: #4aff88;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.safe-box p {
+  color: #666;
+}
+
+.breach-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.breach-summary {
+  text-align: center;
+  padding: 30px;
+  background: #1a0a0a;
+  border: 1px solid #3a1a1a;
+  border-radius: 12px;
+}
+
+.breach-count {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #ff6b6b;
+}
+
+.breach-count-label {
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.8rem;
+}
+
+.breach-warning {
+  color: #ff6b6b;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 15px;
+  background: #1a0a0a;
+  border-radius: 8px;
+  border: 1px solid #3a1a1a;
+}
+
+.breach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.breach-card {
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breach-name {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.breach-date {
+  color: #555;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+
+.breach-data {
+  color: #ff6b6b;
+  font-size: 0.8rem;
+}
+
+.breach-badge {
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.breach-badge.pwned {
+  background: #1a0a0a;
+  border: 1px solid #3a1a1a;
+  color: #ff6b6b;
+}
+
+.nav-center {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-link {
+  color: #555;
+  cursor: pointer;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  padding-bottom: 3px;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.nav-link.active {
+  color: #4a9eff;
+  border-bottom: 2px solid #4a9eff;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
