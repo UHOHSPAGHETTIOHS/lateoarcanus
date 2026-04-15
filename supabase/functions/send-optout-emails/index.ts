@@ -3,15 +3,14 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
 const EMAIL_BROKERS = [
-  // Major Data Brokers
   { id: 'acxiom', name: 'Acxiom', email: 'optout@acxiom.com' },
   { id: 'epsilon', name: 'Epsilon', email: 'privacy@epsilon.com' },
   { id: 'oracle', name: 'Oracle Data Cloud', email: 'datacloudoptout@oracle.com' },
   { id: 'lexisnexis', name: 'LexisNexis', email: 'optout@lexisnexis.com' },
   { id: 'corelogic', name: 'CoreLogic', email: 'privacy@corelogic.com' },
-  { id: 'equifax', name: 'Equifax', email: 'privacy@equifax.com' },
-  { id: 'experian', name: 'Experian', email: 'privacy@experian.com' },
-  { id: 'transunion', name: 'TransUnion', email: 'privacy@transunion.com' },
+  { id: 'equifax', name: 'Equifax', email: 'consumer.support@equifax.com' },
+  { id: 'experian', name: 'Experian', email: 'consumer.support@experian.com' },
+  { id: 'transunion', name: 'TransUnion', email: 'transunion@transunion.com' },
   { id: 'thomsonreuters', name: 'Thomson Reuters', email: 'privacy.request@thomsonreuters.com' },
   { id: 'verisk', name: 'Verisk', email: 'privacy@verisk.com' },
   { id: 'nielsen', name: 'Nielsen', email: 'privacy@nielsen.com' },
@@ -33,9 +32,8 @@ const EMAIL_BROKERS = [
   { id: 'addthis', name: 'AddThis', email: 'privacy@addthis.com' },
   { id: 'adsquare', name: 'Adsquare', email: 'privacy@adsquare.com' },
   { id: 'exelate', name: 'eXelate', email: 'privacy@exelate.com' },
-  // People Search Sites
   { id: 'spokeo', name: 'Spokeo', email: 'privacy@spokeo.com' },
-  { id: 'whitepages', name: 'WhitePages', email: 'support@whitepages.com' },
+  { id: 'whitepages', name: 'WhitePages', email: 'privacy@whitepages.com' },
   { id: 'beenverified', name: 'BeenVerified', email: 'privacy@beenverified.com' },
   { id: 'intelius', name: 'Intelius', email: 'privacy@intelius.com' },
   { id: 'radaris', name: 'Radaris', email: 'privacy@radaris.com' },
@@ -83,7 +81,6 @@ const EMAIL_BROKERS = [
   { id: 'xlek', name: 'Xlek', email: 'privacy@xlek.com' },
   { id: 'yellowpages', name: 'Yellow Pages', email: 'privacy@yellowpages.com' },
   { id: 'zoominfo', name: 'ZoomInfo', email: 'privacy@zoominfo.com' },
-  // Marketing Data Brokers
   { id: 'harte-hanks', name: 'Harte-Hanks', email: 'privacy@harte-hanks.com' },
   { id: 'merkle', name: 'Merkle', email: 'privacy@merkleinc.com' },
   { id: 'conversant', name: 'Conversant', email: 'privacy@conversantmedia.com' },
@@ -107,13 +104,12 @@ const EMAIL_BROKERS = [
   { id: 'windfall', name: 'Windfall', email: 'privacy@windfall.com' },
   { id: 'xandr', name: 'Xandr', email: 'privacy@xandr.com' },
   { id: 'yodlee', name: 'Yodlee', email: 'privacy@yodlee.com' },
-  // Big Tech
-  { id: 'google', name: 'Google', email: 'privacy@google.com' },
-  { id: 'meta', name: 'Meta / Facebook', email: 'privacy@fb.com' },
-  { id: 'amazon', name: 'Amazon', email: 'privacy@amazon.com' },
-  { id: 'microsoft', name: 'Microsoft', email: 'privacy@microsoft.com' },
-  { id: 'apple', name: 'Apple', email: 'privacy@apple.com' },
-  { id: 'twitter', name: 'Twitter / X', email: 'privacy@twitter.com' },
+  { id: 'google', name: 'Google', email: 'legal-notices@google.com' },
+  { id: 'meta', name: 'Meta / Facebook', email: 'records@fb.com' },
+  { id: 'amazon', name: 'Amazon', email: 'legal@amazon.com' },
+  { id: 'microsoft', name: 'Microsoft', email: 'mspprivacy@microsoft.com' },
+  { id: 'apple', name: 'Apple', email: 'legal@apple.com' },
+  { id: 'twitter', name: 'Twitter / X', email: 'privacy-inquiries@twitter.com' },
   { id: 'tiktok', name: 'TikTok', email: 'privacy@tiktok.com' },
   { id: 'spotify', name: 'Spotify', email: 'privacy@spotify.com' },
   { id: 'linkedin', name: 'LinkedIn', email: 'privacy@linkedin.com' },
@@ -122,9 +118,16 @@ const EMAIL_BROKERS = [
   { id: 'uber', name: 'Uber', email: 'privacy@uber.com' },
   { id: 'airbnb', name: 'Airbnb', email: 'privacy@airbnb.com' },
   { id: 'pinterest', name: 'Pinterest', email: 'privacy@pinterest.com' },
-  { id: 'reddit', name: 'Reddit', email: 'privacy@reddit.com' },
+  { id: 'reddit', name: 'Reddit', email: 'legal@reddit.com' },
   { id: 'adobe', name: 'Adobe', email: 'privacy@adobe.com' },
-  { id: 'samsung', name: 'Samsung', email: 'privacy@samsung.com' },
+  { id: 'samsung', name: 'Samsung', email: 'privacy.us@samsung.com' },
+]
+
+const BIG_TECH_IDS = [
+  'google', 'meta', 'amazon', 'microsoft', 'apple',
+  'twitter', 'tiktok', 'spotify', 'linkedin', 'snapchat',
+  'netflix', 'uber', 'airbnb', 'pinterest', 'reddit',
+  'adobe', 'samsung'
 ]
 
 const generateStandardEmail = (brokerName: string, profile: any) => {
@@ -198,13 +201,6 @@ Sincerely,
 ${profile.full_name}`
 }
 
-const BIG_TECH_IDS = [
-  'google', 'meta', 'amazon', 'microsoft', 'apple',
-  'twitter', 'tiktok', 'spotify', 'linkedin', 'snapchat',
-  'netflix', 'uber', 'airbnb', 'pinterest', 'reddit',
-  'adobe', 'samsung'
-]
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
@@ -231,13 +227,13 @@ serve(async (req) => {
       )
     }
 
+    const brokersToContact = selectedBrokers
+      ? EMAIL_BROKERS.filter(b => selectedBrokers.includes(b.id))
+      : EMAIL_BROKERS
+
     const results = []
 
-    const brokersToContact = selectedBrokers
-  ? EMAIL_BROKERS.filter(b => selectedBrokers.includes(b.id))
-  : EMAIL_BROKERS
-
-for (const broker of brokersToContact) {
+    for (const broker of brokersToContact) {
       try {
         const isBigTech = BIG_TECH_IDS.includes(broker.id)
         const emailBody = isBigTech
@@ -255,7 +251,7 @@ for (const broker of brokersToContact) {
             to: 'dawsonmsmith@protonmail.com',
             subject: isBigTech
               ? `FORMAL PRIVACY REQUEST - ${broker.name} - ${profile.full_name}`
-              : `Personal Data Removal Request - ${profile.full_name}`,
+              : `Personal Data Removal Request - ${profile.full_name} - ${broker.name}`,
             text: emailBody
           })
         })
@@ -279,12 +275,12 @@ for (const broker of brokersToContact) {
     }
 
     return new Response(
-  JSON.stringify({
-    success: true,
-    results,
-    total: brokersToContact.length,
-    sent: results.filter(r => r.success).length
-  }),
+      JSON.stringify({
+        success: true,
+        results,
+        total: brokersToContact.length,
+        sent: results.filter(r => r.success).length
+      }),
       {
         headers: {
           'Content-Type': 'application/json',

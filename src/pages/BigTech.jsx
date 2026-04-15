@@ -421,12 +421,12 @@ export default function BigTech() {
             color: '#ff6b6b'
           },
           {
-            number: '\$240',
+            number: '\$700+',
             label: 'Avg yearly value of your data',
             color: '#ffaa00'
           },
           {
-            number: '1000s',
+            number: '10,000+',
             label: 'Times your data is sold yearly',
             color: '#4a9eff'
           }

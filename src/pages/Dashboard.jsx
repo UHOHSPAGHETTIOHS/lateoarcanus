@@ -3,6 +3,7 @@ import { supabase } from '../supabase'
 import BreachChecker from './BreachChecker'
 import DataBrokers from './DataBrokers'
 import BigTech from './BigTech'
+import TrackerScanner from './TrackerScanner'
 
 export default function Dashboard() {
   const [user, setUser] = useState(null)
@@ -76,31 +77,37 @@ export default function Dashboard() {
       <nav className="dash-nav">
         <div className="logo">LATEOARCANUS</div>
         <div className="nav-center">
-          <span
-            className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActivePage('dashboard')}
-          >
-            Aliases
-          </span>
-          <span
-            className={`nav-link ${activePage === 'breach' ? 'active' : ''}`}
-            onClick={() => setActivePage('breach')}
-          >
-            Breach Checker
-          </span>
-          <span
-            className={`nav-link ${activePage === 'brokers' ? 'active' : ''}`}
-            onClick={() => setActivePage('brokers')}
-          >
-            Data Brokers
-          </span>
-          <span
-            className={`nav-link ${activePage === 'bigtech' ? 'active' : ''}`}
-            onClick={() => setActivePage('bigtech')}
-          >
-            Big Tech
-          </span>
-        </div>
+  <span
+    className={`nav-link ${activePage === 'dashboard' ? 'active' : ''}`}
+    onClick={() => setActivePage('dashboard')}
+  >
+    Aliases
+  </span>
+  <span
+    className={`nav-link ${activePage === 'breach' ? 'active' : ''}`}
+    onClick={() => setActivePage('breach')}
+  >
+    Breach Checker
+  </span>
+  <span
+    className={`nav-link ${activePage === 'brokers' ? 'active' : ''}`}
+    onClick={() => setActivePage('brokers')}
+  >
+    Data Brokers
+  </span>
+  <span
+    className={`nav-link ${activePage === 'bigtech' ? 'active' : ''}`}
+    onClick={() => setActivePage('bigtech')}
+  >
+    Big Tech
+  </span>
+  <span
+    className={`nav-link ${activePage === 'tracker' ? 'active' : ''}`}
+    onClick={() => setActivePage('tracker')}
+  >
+    Tracker Scanner
+  </span>
+</div>
         <div className="nav-right">
           <span className="user-email">{user?.email}</span>
           <button className="sign-out" onClick={handleSignOut}>
@@ -110,12 +117,15 @@ export default function Dashboard() {
       </nav>
 
       {activePage === 'breach' ? (
-        <BreachChecker />
-      ) : activePage === 'brokers' ? (
-        <DataBrokers />
-      ) : activePage === 'bigtech' ? (
-        <BigTech />
-      ) : (
+  <BreachChecker />
+) : activePage === 'brokers' ? (
+  <DataBrokers />
+) : activePage === 'bigtech' ? (
+  <BigTech />
+) : activePage === 'tracker' ? (
+  <TrackerScanner />
+) : (
+
         <div className="dash-container">
           <div className="dash-header">
             <div>

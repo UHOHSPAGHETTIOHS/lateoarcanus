@@ -114,16 +114,6 @@ const BROKERS = [
     icon: '📊'
   },
   {
-    id: 'datalogix',
-    name: 'Oracle Data Cloud',
-    category: 'Data Broker',
-    dataCollected: ['Purchase History', 'Location', 'Demographics'],
-    optOutUrl: 'https://datacloudoptout.oracle.com/optout',
-    difficulty: 'medium',
-    estimatedTime: '30 days',
-    icon: '☁️'
-  },
-  {
     id: 'lexisnexis',
     name: 'LexisNexis',
     category: 'Data Broker',
@@ -132,6 +122,16 @@ const BROKERS = [
     difficulty: 'hard',
     estimatedTime: '30 days',
     icon: '⚖️'
+  },
+  {
+    id: 'coredatabroker',
+    name: 'CoreLogic',
+    category: 'Data Broker',
+    dataCollected: ['Property Records', 'Financial', 'Address History'],
+    optOutUrl: 'https://www.corelogic.com/privacy-center/',
+    difficulty: 'hard',
+    estimatedTime: '30 days',
+    icon: '🏠'
   },
   {
     id: 'familytreenow',
