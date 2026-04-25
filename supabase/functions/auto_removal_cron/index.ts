@@ -1,5 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
@@ -10,8 +10,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// FULL broker list matching AutoRemoval.jsx ALL_BROKERS
+// Full broker list matching send-optout-emails (116 brokers, no Big Tech)
 const BROKER_CONTACTS = [
+  // Data Brokers (30)
   { id: 'acxiom', name: 'Acxiom', email: 'optout@acxiom.com' },
   { id: 'epsilon', name: 'Epsilon', email: 'privacy@epsilon.com' },
   { id: 'oracle', name: 'Oracle Data Cloud', email: 'datacloudoptout@oracle.com' },
@@ -41,8 +42,9 @@ const BROKER_CONTACTS = [
   { id: 'adsquare', name: 'Adsquare', email: 'privacy@adsquare.com' },
   { id: 'exelate', name: 'eXelate', email: 'privacy@nielsen.com' },
   { id: 'zoominfo', name: 'ZoomInfo', email: 'privacy@zoominfo.com' },
-  
-  // Marketing
+  { id: 'yodlee', name: 'Yodlee', email: 'privacy@yodlee.com' },
+
+  // Marketing (22)
   { id: 'harte-hanks', name: 'Harte-Hanks', email: 'privacy@harte-hanks.com' },
   { id: 'merkle', name: 'Merkle', email: 'privacy@merkleinc.com' },
   { id: 'conversant', name: 'Conversant', email: 'privacy@conversantmedia.com' },
@@ -65,9 +67,8 @@ const BROKER_CONTACTS = [
   { id: 'weborama', name: 'Weborama', email: 'privacy@weborama.com' },
   { id: 'windfall', name: 'Windfall', email: 'privacy@windfalldata.com' },
   { id: 'xandr', name: 'Xandr', email: 'privacy@xandr.com' },
-  { id: 'yodlee', name: 'Yodlee', email: 'privacy@yodlee.com' },
-  
-  // People Search
+
+  // People Search (64)
   { id: 'spokeo', name: 'Spokeo', email: 'privacy@spokeo.com' },
   { id: 'whitepages', name: 'WhitePages', email: 'privacy@whitepages.com' },
   { id: 'beenverified', name: 'BeenVerified', email: 'privacy@beenverified.com' },
@@ -112,7 +113,6 @@ const BROKER_CONTACTS = [
   { id: 'voterrecords', name: 'Voter Records', email: 'privacy@voterrecords.com' },
   { id: 'xlek', name: 'Xlek', email: 'privacy@xlek.com' },
   { id: 'yellowpages', name: 'Yellow Pages', email: 'privacy@yellowpages.com' },
-    // NEW People Search additions
   { id: '411', name: '411.com', email: 'privacy@411.com' },
   { id: 'addresssearch', name: 'AddressSearch', email: 'privacy@addresssearch.com' },
   { id: 'advancedbackgroundchecks', name: 'Advanced Background Checks', email: 'privacy@advancedbackgroundchecks.com' },
@@ -133,30 +133,42 @@ const BROKER_CONTACTS = [
   { id: 'kiwisearches', name: 'Kiwi Searches', email: 'privacy@kiwisearches.com' },
   { id: 'neighborwho', name: 'NeighborWho', email: 'privacy@neighborwho.com' },
   { id: 'newenglandfacts', name: 'NewEnglandFacts', email: 'privacy@newenglandfacts.com' },
-  
-  // Big Tech - no email opt-outs
-  { id: 'google', name: 'Google', email: null },
-  { id: 'meta', name: 'Meta / Facebook', email: null },
-  { id: 'amazon', name: 'Amazon', email: null },
-  { id: 'microsoft', name: 'Microsoft', email: null },
-  { id: 'apple', name: 'Apple', email: null },
-  { id: 'twitter', name: 'Twitter / X', email: null },
-  { id: 'tiktok', name: 'TikTok', email: null },
-  { id: 'spotify', name: 'Spotify', email: null },
-  { id: 'linkedin', name: 'LinkedIn', email: null },
-  { id: 'snapchat', name: 'Snapchat', email: null },
-  { id: 'netflix', name: 'Netflix', email: null },
-  { id: 'uber', name: 'Uber', email: null },
-  { id: 'airbnb', name: 'Airbnb', email: null },
-  { id: 'pinterest', name: 'Pinterest', email: null },
-  { id: 'reddit', name: 'Reddit', email: null },
-  { id: 'adobe', name: 'Adobe', email: null },
-  { id: 'samsung', name: 'Samsung', email: null },
 ]
 
-const YOUR_EMAIL = 'dawsonmsmith@protonmail.com'
+const generateCCPARequest = (brokerName: string, profile: any, isFollowUp: boolean) => {
+  if (isFollowUp) {
+    return `To Whom It May Concern,
 
-const generateCCPARequest = (brokerName: string, profile: any) => {
+FOLLOW-UP: CCPA/GDPR Data Deletion Request
+
+This is a follow-up to our data deletion request previously sent regarding ${profile.full_name}.
+
+We have not received confirmation that personal information has been deleted from ${brokerName}.
+
+CONSUMER INFORMATION:
+Full Legal Name: ${profile.full_name}
+Email: ${profile.email}
+Mailing Address: ${profile.address || 'Not provided'}
+City: ${profile.city || 'Not provided'}
+State: ${profile.state || 'Not provided'}
+ZIP Code: ${profile.zip || 'Not provided'}
+Country: ${profile.country || 'United States'}
+Phone: ${profile.phone || 'Not provided'}
+
+Under CCPA Section 1798.105 and GDPR Article 17, you are required to:
+1. Delete all personal information associated with the above identifiers
+2. Confirm deletion within 30 days
+3. Notify any third parties who received this data
+
+Failure to comply may result in formal complaints to the California Attorney General and relevant EU Data Protection Authorities.
+
+I authorize LateoArcanus to act as my authorized agent in submitting and following up on this request.
+
+Sincerely,
+${profile.full_name}
+Date: ${new Date().toLocaleDateString()}`
+  }
+
   return `To Whom It May Concern,
 
 DATA DELETION REQUEST UNDER CCPA / GDPR
@@ -173,13 +185,9 @@ ZIP Code: ${profile.zip || 'Not provided'}
 Country: ${profile.country || 'United States'}
 Phone: ${profile.phone || 'Not provided'}
 
-LEGAL BASIS FOR THIS REQUEST:
-
-1. Under the California Consumer Privacy Act (CCPA) Section 1798.105, consumers have the right to request deletion of their personal information.
-
-2. Under the General Data Protection Regulation (GDPR) Article 17, data subjects have the "right to erasure."
-
-3. As stated in your own privacy policy, you are committed to protecting consumer privacy and complying with applicable data protection laws. This request aligns directly with the privacy commitments you make to your users.
+This request is made under:
+- California Consumer Privacy Act (CCPA) Section 1798.105
+- General Data Protection Regulation (GDPR) Article 17 (Right to Erasure)
 
 REQUESTED ACTIONS:
 1. Delete all personal information associated with the above identifiers
@@ -187,8 +195,6 @@ REQUESTED ACTIONS:
 3. Cease all sale or sharing of my personal information
 4. Provide confirmation of deletion within 30 days as required by law
 5. Ensure my data is not re-collected or re-added in the future
-
-If you do not have a published privacy policy, please be advised that this is itself a violation of CCPA Section 1798.130(a)(5) and GDPR Article 13, and will be noted in any formal complaint.
 
 I authorize LateoArcanus to act as my authorized agent in submitting and following up on this request.
 
@@ -205,153 +211,256 @@ serve(async (req) => {
   try {
     const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!)
 
-    const { profile, selectedBrokers, user_id } = await req.json()
+    // ══════════════════════════════════════════════════════════
+    // PHASE 1: AUTO-ESCALATION — Mark 30+ day pending as removed
+    // ══════════════════════════════════════════════════════════
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    if (!profile?.full_name || !profile?.email) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Profile incomplete' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    const { data: staleAttempts } = await supabase
+      .from('removal_attempts')
+      .select('id, user_id, broker_id')
+      .in('status', ['sent', 'delivered', 'opened'])
+      .lte('sent_at', thirtyDaysAgo)
 
-    if (!user_id) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Missing user_id' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    let autoCompleted = 0
 
-    // Filter to brokers that have email addresses (for logging purposes)
-    // But send ALL emails to YOUR_EMAIL instead
-    const brokersToProcess = BROKER_CONTACTS.filter(b =>
-      selectedBrokers.includes(b.id) && b.email
-    )
-
-    const results = []
-    let sent = 0
-    let failed = 0
-    let skipped = 0
-
-    for (const broker of brokersToProcess) {
-      try {
-        // Check if we already sent to this broker in last 14 days
-                // Check if we already have a successful/pending attempt for this broker
-        const { data: recent } = await supabase
+    if (staleAttempts && staleAttempts.length > 0) {
+      for (const attempt of staleAttempts) {
+        await supabase
           .from('removal_attempts')
-          .select('id, status')
-          .eq('user_id', user_id)
-          .eq('broker_id', broker.id)
-          .in('status', ['sent', 'delivered', 'opened', 'responded', 'completed'])
-          .gte('sent_at', new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString())
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            verification_method: 'auto_30day',
+            broker_response: 'Auto-completed: 30 days elapsed with no rejection (CCPA compliance presumed)'
+          })
+          .eq('id', attempt.id)
+
+        // Also add to broker_removals
+        const { data: existing } = await supabase
+          .from('broker_removals')
+          .select('id')
+          .eq('user_id', attempt.user_id)
+          .eq('broker_id', attempt.broker_id)
           .maybeSingle()
 
-        if (recent) {
-          skipped++
-          results.push({ broker: broker.name, success: false, type: 'skipped', reason: recent.status === 'completed' ? 'already_removed' : 'recently_sent' })
+        if (!existing) {
+          await supabase.from('broker_removals').insert({
+            user_id: attempt.user_id,
+            broker_id: attempt.broker_id
+          })
+        }
+
+        autoCompleted++
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // PHASE 2: RE-REMOVAL — Resend to users due for 30-day cycle
+    // ══════════════════════════════════════════════════════════
+    const { data: profiles, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('auto_removal_enabled', true)
+      .eq('authorization_signed', true)
+      .lte('next_removal_date', new Date().toISOString())
+
+    if (error) throw error
+
+    if (!profiles || profiles.length === 0) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'No users due for re-removal',
+          auto_completed: autoCompleted
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const results = []
+
+    for (const profile of profiles) {
+      if (!profile.full_name || !profile.email) continue
+
+      // Get all current attempts for this user
+      const { data: currentAttempts } = await supabase
+        .from('removal_attempts')
+        .select('broker_id, status')
+        .eq('user_id', profile.id)
+
+      const attemptMap: Record<string, string> = {}
+      currentAttempts?.forEach(a => { attemptMap[a.broker_id] = a.status })
+
+      // Determine which brokers to send to:
+      // - Skip: completed (already removed)
+      // - Resend: failed, or pending that hit next_follow_up
+      // - New: never attempted
+      const brokersToSend: typeof BROKER_CONTACTS = []
+
+      for (const broker of BROKER_CONTACTS) {
+        const currentStatus = attemptMap[broker.id]
+
+        if (currentStatus === 'completed') {
+          // Already removed, skip
           continue
         }
 
-        // Clean up old failed attempts for this broker before resending
-        await supabase
-          .from('removal_attempts')
-          .delete()
-          .eq('user_id', user_id)
-          .eq('broker_id', broker.id)
-          .eq('status', 'failed')
-
-        // Send to YOUR email instead of broker's email
-        const response = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-                    body: JSON.stringify({
-            from: 'onboarding@resend.dev',
-            to: YOUR_EMAIL,
-            subject: `[${broker.name}] CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
-            html: `<div style="font-family: 'Courier New', monospace; background: #f5f5f5; padding: 20px; max-width: 600px; margin: 0 auto;">
-<pre style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; color: #222; white-space: pre-wrap; word-wrap: break-word; background: #fff; padding: 20px; border: 1px solid #ccc;">${generateCCPARequest(broker.name, profile)}</pre>
-<p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">This email was sent by LateoArcanus on behalf of ${profile.full_name}</p>
-</div>`,
-            text: generateCCPARequest(broker.name, profile),
-            reply_to: profile.email
-          })
-        })
-
-        const emailData = await response.json()
-
-        if (response.ok) {
-          sent++
-          await supabase.from('removal_attempts').insert({
-            user_id,
-            broker_id: broker.id,
-            broker_name: broker.name,
-            method: 'email',
-            status: 'sent',
-            email_id: emailData.id,
-            sent_at: new Date().toISOString(),
-            next_follow_up: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          })
-          results.push({ broker: broker.name, success: true, type: 'email', email_id: emailData.id })
-        } else {
-          failed++
-          await supabase.from('removal_attempts').insert({
-            user_id,
-            broker_id: broker.id,
-            broker_name: broker.name,
-            method: 'email',
-            status: 'failed',
-            error: emailData.message || 'send_failed',
-            sent_at: new Date().toISOString()
-          })
-          results.push({ broker: broker.name, success: false, type: 'email', error: emailData.message })
+        if (!currentStatus) {
+          // Never attempted, send fresh
+          brokersToSend.push(broker)
+          continue
         }
 
-        await new Promise(resolve => setTimeout(resolve, 100))
+        if (currentStatus === 'failed') {
+          // Failed, retry
+          brokersToSend.push(broker)
+          continue
+        }
 
-      } catch (err: any) {
-        failed++
-        results.push({ broker: broker.name, success: false, type: 'error', error: err.message })
+        // For sent/delivered/opened/responded — check if follow-up is due
+        const { data: attempt } = await supabase
+          .from('removal_attempts')
+          .select('next_follow_up')
+          .eq('user_id', profile.id)
+          .eq('broker_id', broker.id)
+          .maybeSingle()
+
+        if (attempt?.next_follow_up && new Date(attempt.next_follow_up) <= new Date()) {
+          brokersToSend.push(broker)
+        }
       }
-    }
 
-    // Handle Big Tech / no-email brokers
-    const manualBrokers = selectedBrokers.filter((id: string) => {
-      const broker = BROKER_CONTACTS.find(b => b.id === id)
-      return broker && !broker.email
-    })
+      let sent = 0
+      let failed = 0
+      let skipped = 0
 
-    for (const brokerId of manualBrokers) {
-      const broker = BROKER_CONTACTS.find(b => b.id === brokerId)
-      if (broker) {
-        results.push({ 
-          broker: broker.name, 
-          success: false, 
-          type: 'manual', 
-          reason: 'requires_manual_opt_out' 
-        })
+      for (const broker of brokersToSend) {
+        try {
+          const currentStatus = attemptMap[broker.id]
+          const isFollowUp = !!currentStatus && currentStatus !== 'failed'
+
+          // Clean up failed attempts before resending
+          if (currentStatus === 'failed') {
+            await supabase
+              .from('removal_attempts')
+              .delete()
+              .eq('user_id', profile.id)
+              .eq('broker_id', broker.id)
+              .eq('status', 'failed')
+          }
+
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${RESEND_API_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: 'removals@lateoarcanus.com',
+              to: broker.email,
+              subject: `${isFollowUp ? 'FOLLOW-UP: ' : ''}CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
+              text: generateCCPARequest(broker.name, profile, isFollowUp),
+              reply_to: profile.email
+            })
+          })
+
+          const emailData = await response.json()
+
+          if (response.ok) {
+            sent++
+
+            // Check for existing attempt to update vs insert
+            const { data: existing } = await supabase
+              .from('removal_attempts')
+              .select('id, follow_up_count')
+              .eq('user_id', profile.id)
+              .eq('broker_id', broker.id)
+              .maybeSingle()
+
+            if (existing) {
+              await supabase.from('removal_attempts').update({
+                status: 'sent',
+                sent_at: new Date().toISOString(),
+                email_id: emailData.id,
+                next_follow_up: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                follow_up_count: (existing.follow_up_count || 0) + 1,
+                error: null,
+                broker_response: null
+              }).eq('id', existing.id)
+            } else {
+              await supabase.from('removal_attempts').insert({
+                user_id: profile.id,
+                broker_id: broker.id,
+                broker_name: broker.name,
+                method: 'email',
+                status: 'sent',
+                email_id: emailData.id,
+                sent_at: new Date().toISOString(),
+                next_follow_up: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                follow_up_count: 1
+              })
+            }
+          } else {
+            failed++
+
+            // Log the failure
+            const { data: existing } = await supabase
+              .from('removal_attempts')
+              .select('id')
+              .eq('user_id', profile.id)
+              .eq('broker_id', broker.id)
+              .maybeSingle()
+
+            if (existing) {
+              await supabase.from('removal_attempts').update({
+                status: 'failed',
+                error: emailData.message || 'send_failed',
+                sent_at: new Date().toISOString()
+              }).eq('id', existing.id)
+            } else {
+              await supabase.from('removal_attempts').insert({
+                user_id: profile.id,
+                broker_id: broker.id,
+                broker_name: broker.name,
+                method: 'email',
+                status: 'failed',
+                error: emailData.message || 'send_failed',
+                sent_at: new Date().toISOString()
+              })
+            }
+          }
+
+          // Rate limit
+          await new Promise(resolve => setTimeout(resolve, 100))
+        } catch (err) {
+          failed++
+        }
       }
+
+      // Update next removal date
+      const nextRemoval = new Date()
+      nextRemoval.setDate(nextRemoval.getDate() + 30)
+      await supabase.from('profiles').update({
+        last_removal_date: new Date().toISOString(),
+        next_removal_date: nextRemoval.toISOString()
+      }).eq('id', profile.id)
+
+      results.push({
+        user: profile.email,
+        sent,
+        failed,
+        skipped: BROKER_CONTACTS.length - brokersToSend.length,
+        total_targeted: brokersToSend.length
+      })
     }
-
-    const nextRemoval = new Date()
-    nextRemoval.setDate(nextRemoval.getDate() + 30)
-
-    await supabase.from('profiles').update({
-      last_removal_date: new Date().toISOString(),
-      next_removal_date: nextRemoval.toISOString()
-    }).eq('id', user_id)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent, 
-        failed, 
-        skipped,
-        manual: manualBrokers.length,
-        total: brokersToProcess.length + manualBrokers.length, 
-        results,
-        next_removal: nextRemoval.toISOString()
+      JSON.stringify({
+        success: true,
+        auto_completed: autoCompleted,
+        users_processed: results.length,
+        results
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

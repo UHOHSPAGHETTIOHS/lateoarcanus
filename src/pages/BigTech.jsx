@@ -1,11 +1,12 @@
 import { useState } from 'react'
+import { supabase } from '../supabase'
+import TypewriterText from '../components/TypewriterText'
+import Redacted from '../components/Redacted'
 
 const BIG_TECH = [
   {
     id: 'google',
     name: 'Google',
-    icon: '🔍',
-    color: '#4285f4',
     riskLevel: 'Critical',
     tagline: 'Knows everything about you',
     dataCollected: [
@@ -34,15 +35,12 @@ const BIG_TECH = [
       'Behavioral manipulation',
       'Personal profiling'
     ],
-    privacyEmail: 'privacy@google.com',
     optOutUrl: 'https://myaccount.google.com/data-and-privacy',
     deletionUrl: 'https://myaccount.google.com/delete-services-or-account'
   },
   {
     id: 'meta',
     name: 'Meta / Facebook',
-    icon: '👥',
-    color: '#1877f2',
     riskLevel: 'Critical',
     tagline: 'Knows your deepest thoughts and relationships',
     dataCollected: [
@@ -71,15 +69,12 @@ const BIG_TECH = [
       'Relationship exploitation',
       'Cambridge Analytica style misuse'
     ],
-    privacyEmail: 'privacy@fb.com',
     optOutUrl: 'https://www.facebook.com/privacy/center',
     deletionUrl: 'https://www.facebook.com/help/delete_account'
   },
   {
     id: 'amazon',
     name: 'Amazon',
-    icon: '📦',
-    color: '#ff9900',
     riskLevel: 'High',
     tagline: 'Knows your finances and home life',
     dataCollected: [
@@ -108,15 +103,12 @@ const BIG_TECH = [
       'Financial profiling',
       'Law enforcement data sharing'
     ],
-    privacyEmail: 'privacy@amazon.com',
     optOutUrl: 'https://www.amazon.com/privacy',
     deletionUrl: 'https://www.amazon.com/hz/contact-us/privacy'
   },
   {
     id: 'tiktok',
     name: 'TikTok',
-    icon: '🎵',
-    color: '#ff0050',
     riskLevel: 'Critical',
     tagline: 'Most aggressive data collector on your phone',
     dataCollected: [
@@ -145,15 +137,12 @@ const BIG_TECH = [
       'Location stalking',
       'Psychological manipulation'
     ],
-    privacyEmail: 'privacy@tiktok.com',
     optOutUrl: 'https://www.tiktok.com/legal/privacy-policy',
     deletionUrl: 'https://support.tiktok.com/en/account-and-privacy/deleting-an-account'
   },
   {
     id: 'microsoft',
     name: 'Microsoft',
-    icon: '💻',
-    color: '#00a4ef',
     riskLevel: 'High',
     tagline: 'Knows your professional and personal life',
     dataCollected: [
@@ -182,15 +171,12 @@ const BIG_TECH = [
       'Corporate espionage risk',
       'Career manipulation'
     ],
-    privacyEmail: 'privacy@microsoft.com',
     optOutUrl: 'https://account.microsoft.com/privacy',
     deletionUrl: 'https://account.microsoft.com/privacy/data-controls'
   },
   {
     id: 'apple',
     name: 'Apple',
-    icon: '🍎',
-    color: '#555555',
     riskLevel: 'Medium',
     tagline: 'Less than most but still collects significant data',
     dataCollected: [
@@ -218,15 +204,12 @@ const BIG_TECH = [
       'Location tracking',
       'Identity theft'
     ],
-    privacyEmail: 'privacy@apple.com',
     optOutUrl: 'https://privacy.apple.com',
     deletionUrl: 'https://privacy.apple.com/account'
   },
   {
     id: 'twitter',
     name: 'Twitter / X',
-    icon: '🐦',
-    color: '#1da1f2',
     riskLevel: 'High',
     tagline: 'Knows your opinions and political views',
     dataCollected: [
@@ -255,15 +238,12 @@ const BIG_TECH = [
       'Doxxing risk',
       'Employment discrimination'
     ],
-    privacyEmail: 'privacy@twitter.com',
     optOutUrl: 'https://twitter.com/settings/privacy_and_safety',
     deletionUrl: 'https://twitter.com/settings/deactivate'
   },
   {
     id: 'linkedin',
     name: 'LinkedIn',
-    icon: '💼',
-    color: '#0077b5',
     riskLevel: 'High',
     tagline: 'Knows your entire professional life',
     dataCollected: [
@@ -292,15 +272,12 @@ const BIG_TECH = [
       'Corporate targeting',
       'Recruitment scams'
     ],
-    privacyEmail: 'privacy@linkedin.com',
     optOutUrl: 'https://www.linkedin.com/psettings/privacy',
     deletionUrl: 'https://www.linkedin.com/help/linkedin/answer/63'
   },
   {
     id: 'spotify',
     name: 'Spotify',
-    icon: '🎧',
-    color: '#1db954',
     riskLevel: 'Medium',
     tagline: 'Knows your emotions through your music',
     dataCollected: [
@@ -329,15 +306,12 @@ const BIG_TECH = [
       'Advertising exploitation',
       'Personal taste exposure'
     ],
-    privacyEmail: 'privacy@spotify.com',
     optOutUrl: 'https://www.spotify.com/account/privacy',
     deletionUrl: 'https://support.spotify.com/article/close-account'
   },
   {
     id: 'snapchat',
     name: 'Snapchat',
-    icon: '👻',
-    color: '#fffc00',
     riskLevel: 'High',
     tagline: 'Knows your location and social life in real time',
     dataCollected: [
@@ -366,21 +340,28 @@ const BIG_TECH = [
       'Youth targeting exploitation',
       'Identity theft'
     ],
-    privacyEmail: 'privacy@snap.com',
     optOutUrl: 'https://www.snapchat.com/privacy/privacy-controls',
     deletionUrl: 'https://support.snapchat.com/en-US/a/delete-my-account1'
   }
 ]
 
-const getRiskColor = (risk) => {
-  switch(risk) {
-    case 'Critical': return '#ff4444'
-    case 'High': return '#ff6b6b'
-    case 'Medium': return '#ffaa00'
-    case 'Low': return '#4aff88'
-    default: return '#888'
-  }
+const mono = { fontFamily: "'Share Tech Mono', monospace" }
+
+const trackBigTechOptOut = async (companyId, companyName) => {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
+  
+  await supabase.from('removal_attempts').insert({
+    user_id: user.id,
+    broker_id: companyId,
+    broker_name: companyName,
+    method: 'manual',
+    status: 'sent',
+    sent_at: new Date().toISOString(),
+    next_follow_up: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+  })
 }
+
 export default function BigTech() {
   const [selected, setSelected] = useState(null)
   const [sent, setSent] = useState([])
@@ -392,65 +373,54 @@ export default function BigTech() {
     setShowWarning(true)
   }
 
-  const confirmOptOut = () => {
+  const confirmOptOut = async () => {
+    await trackBigTechOptOut(pendingCompany.id, pendingCompany.name)
     setSent([...sent, pendingCompany.id])
     setShowWarning(false)
     window.open(pendingCompany.optOutUrl, '_blank')
   }
 
   return (
-    <div className="tool-container" style={{maxWidth: '900px'}}>
+    <div className="tool-container" style={{ maxWidth: '900px' }}>
       <div className="tool-header">
-        <h1>Big Tech Data Control</h1>
+        <TypewriterText text="Big Tech Data Control" style={{ fontFamily: "'Share Tech Mono', monospace" }} />
         <p className="tool-sub">
-          See exactly what the worlds biggest companies know about
-          you and take back control of your data
+          See exactly what the worlds biggest companies <Redacted>know about you</Redacted> and take back control of your <Redacted>data</Redacted>
         </p>
       </div>
 
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '15px',
+        gap: '8px',
         marginBottom: '30px'
       }}>
         {[
-          {
-            number: '10+',
-            label: 'Companies profiling you',
-            color: '#ff6b6b'
-          },
-          {
-            number: '\$700+',
-            label: 'Avg yearly value of your data',
-            color: '#ffaa00'
-          },
-          {
-            number: '10,000+',
-            label: 'Times your data is sold yearly',
-            color: '#4a9eff'
-          }
+          { number: '10+', label: <span>Companies <Redacted>profiling you</Redacted></span> },
+          { number: '$700+', label: <span>Avg yearly value of <Redacted>your data</Redacted></span> },
+          { number: '10,000+', label: <span>Times <Redacted>your data</Redacted> is sold yearly</span> },
         ].map(stat => (
           <div key={stat.label} style={{
-            background: '#111',
-            border: '1px solid #1e1e1e',
-            borderRadius: '12px',
+            background: 'rgba(0, 0, 0, 0.6)',
+            border: '1px solid #1a1a1a',
             padding: '25px',
             textAlign: 'center'
           }}>
             <div style={{
               fontSize: '2rem',
               fontWeight: '900',
-              color: stat.color,
-              marginBottom: '8px'
+              color: '#fff',
+              marginBottom: '8px',
+              ...mono
             }}>
               {stat.number}
             </div>
             <div style={{
-              color: '#555',
-              fontSize: '0.8rem',
+              color: '#333',
+              fontSize: '0.7rem',
               textTransform: 'uppercase',
-              letterSpacing: '1px'
+              letterSpacing: '1px',
+              ...mono
             }}>
               {stat.label}
             </div>
@@ -458,95 +428,71 @@ export default function BigTech() {
         ))}
       </div>
 
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '15px'
-      }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
         {BIG_TECH.map(company => (
           <div key={company.id}>
             <div
               style={{
-                background: '#111',
-                border: `1px solid ${selected?.id === company.id
-                  ? getRiskColor(company.riskLevel) + '44'
-                  : '#1e1e1e'}`,
-                borderRadius: selected?.id === company.id
-                  ? '12px 12px 0 0'
-                  : '12px',
-                padding: '20px 25px',
+                background: '#000',
+                border: '1px solid #1a1a1a',
+                borderBottom: selected?.id === company.id ? 'none' : '1px solid #1a1a1a',
+                padding: '18px 22px',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
               }}
-              onClick={() => setSelected(
-                selected?.id === company.id ? null : company
-              )}
+              onClick={() => setSelected(selected?.id === company.id ? null : company)}
             >
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '15px'
-                }}>
-                  <span style={{fontSize: '2rem'}}>
-                    {company.icon}
-                  </span>
-                  <div>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      marginBottom: '4px',
-                      flexWrap: 'wrap'
+                <div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    marginBottom: '4px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{
+                      fontWeight: '700',
+                      fontSize: '0.95rem',
+                      color: '#fff',
+                      ...mono
                     }}>
-                      <span style={{
-                        fontWeight: '700',
-                        fontSize: '1.1rem'
-                      }}>
-                        {company.name}
-                      </span>
+                      {company.name}
+                    </span>
+                    <span style={{
+                      fontSize: '0.7rem',
+                      color: '#444',
+                      letterSpacing: '1px',
+                      ...mono
+                    }}>
+                      [ {company.riskLevel.toUpperCase()} ]
+                    </span>
+                    {sent.includes(company.id) && (
                       <span style={{
                         fontSize: '0.7rem',
-                        padding: '2px 10px',
-                        borderRadius: '999px',
-                        background: getRiskColor(company.riskLevel) + '22',
-                        color: getRiskColor(company.riskLevel),
-                        border: `1px solid ${getRiskColor(company.riskLevel)}44`
+                        color: '#fff',
+                        border: '1px solid #333',
+                        padding: '2px 8px',
+                        ...mono
                       }}>
-                        {company.riskLevel} Risk
+                        OPTED OUT
                       </span>
-                      {sent.includes(company.id) && (
-                        <span style={{
-                          fontSize: '0.7rem',
-                          padding: '2px 10px',
-                          borderRadius: '999px',
-                          background: '#0a1a0a',
-                          color: '#4aff88',
-                          border: '1px solid #1a3a1a'
-                        }}>
-                          ✓ Opted Out
-                        </span>
-                      )}
-                    </div>
-                    <div style={{
-                      color: '#555',
-                      fontSize: '0.85rem'
-                    }}>
-                      {company.tagline}
-                    </div>
+                    )}
+                  </div>
+                  <div style={{ color: '#333', fontSize: '0.8rem', ...mono }}>
+                    {company.tagline}
                   </div>
                 </div>
                 <span style={{
                   color: '#333',
-                  fontSize: '1.2rem',
+                  fontSize: '0.75rem',
                   transition: 'transform 0.2s',
-                  transform: selected?.id === company.id
-                    ? 'rotate(180deg)'
-                    : 'rotate(0deg)'
+                  transform: selected?.id === company.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                  ...mono
                 }}>
                   ▼
                 </span>
@@ -555,10 +501,9 @@ export default function BigTech() {
 
             {selected?.id === company.id && (
               <div style={{
-                background: '#0a0a0a',
-                border: `1px solid ${getRiskColor(company.riskLevel)}22`,
+                background: '#050505',
+                border: '1px solid #1a1a1a',
                 borderTop: 'none',
-                borderRadius: '0 0 12px 12px',
                 padding: '25px'
               }}>
                 <div style={{
@@ -567,111 +512,55 @@ export default function BigTech() {
                   gap: '20px',
                   marginBottom: '25px'
                 }}>
-                  <div>
-                    <h3 style={{
-                      fontSize: '0.8rem',
-                      color: '#ff6b6b',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      marginBottom: '12px'
-                    }}>
-                      📊 What They Collect
-                    </h3>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
-                      {company.dataCollected.map(item => (
-                        <div key={item} style={{
-                          color: '#666',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          gap: '6px'
-                        }}>
-                          <span style={{color: '#ff6b6b'}}>•</span>
-                          {item}
-                        </div>
-                      ))}
+                  {[
+                    { title: 'WHAT THEY COLLECT', items: company.dataCollected },
+                    { title: 'WHAT THEY SELL', items: company.dataSold },
+                    { title: 'YOUR RISKS', items: company.risks },
+                  ].map(col => (
+                    <div key={col.title}>
+                      <h3 style={{
+                        fontSize: '0.7rem',
+                        color: '#444',
+                        letterSpacing: '2px',
+                        marginBottom: '12px',
+                        ...mono
+                      }}>
+                        {col.title}
+                      </h3>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px'
+                      }}>
+                        {col.items.map(item => (
+                          <div key={item} style={{
+                            color: '#444',
+                            fontSize: '0.78rem',
+                            display: 'flex',
+                            gap: '6px',
+                            ...mono
+                          }}>
+                            <span style={{ color: '#fff', flexShrink: 0 }}>_</span>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <h3 style={{
-                      fontSize: '0.8rem',
-                      color: '#ffaa00',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      marginBottom: '12px'
-                    }}>
-                      💰 What They Sell
-                    </h3>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
-                      {company.dataSold.map(item => (
-                        <div key={item} style={{
-                          color: '#666',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          gap: '6px'
-                        }}>
-                          <span style={{color: '#ffaa00'}}>•</span>
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 style={{
-                      fontSize: '0.8rem',
-                      color: '#4aff88',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      marginBottom: '12px'
-                    }}>
-                      ⚠️ Your Risks
-                    </h3>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '6px'
-                    }}>
-                      {company.risks.map(item => (
-                        <div key={item} style={{
-                          color: '#666',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          gap: '6px'
-                        }}>
-                          <span style={{color: '#4aff88'}}>•</span>
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 <div style={{
                   display: 'flex',
-                  gap: '12px',
+                  gap: '10px',
                   paddingTop: '20px',
                   borderTop: '1px solid #1a1a1a'
                 }}>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleOptOut(company)
-                    }}
+                    onClick={(e) => { e.stopPropagation(); handleOptOut(company) }}
                     className="button"
-                    style={{flex: 1}}
+                    style={{ flex: 1 }}
                   >
-                    {sent.includes(company.id)
-                      ? '✓ Opted Out - Do Again'
-                      : '🛡️ Opt Out of Data Collection'}
+                    {sent.includes(company.id) ? 'Opt Out Again' : 'Opt Out of Data Collection'}
                   </button>
                   <a
                     href={company.deletionUrl}
@@ -682,18 +571,19 @@ export default function BigTech() {
                       flex: 1,
                       background: 'transparent',
                       border: '1px solid #222',
-                      color: '#888',
-                      padding: '15px',
-                      borderRadius: '8px',
+                      color: '#444',
+                      padding: '14px',
                       textDecoration: 'none',
                       textAlign: 'center',
-                      fontSize: '0.9rem',
+                      fontSize: '0.8rem',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      letterSpacing: '1px',
+                      ...mono
                     }}
                   >
-                    🗑️ Request Data Deletion
+                    Request Data Deletion
                   </a>
                 </div>
               </div>
@@ -705,11 +595,8 @@ export default function BigTech() {
       {showWarning && pendingCompany && (
         <div style={{
           position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.85)',
+          inset: 0,
+          background: 'rgba(0,0,0,0.95)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -717,20 +604,25 @@ export default function BigTech() {
           padding: '20px'
         }}>
           <div style={{
-            background: '#111',
-            border: '1px solid #1e1e1e',
-            borderRadius: '16px',
+            background: '#000',
+            border: '1px solid #333',
             padding: '40px',
             maxWidth: '500px',
             width: '100%'
           }}>
-            <h2 style={{marginBottom: '15px'}}>
-              ⚠️ Before You Continue
+            <h2 style={{
+              marginBottom: '15px',
+              color: '#fff',
+              ...mono
+            }}>
+              Before You Continue
             </h2>
             <p style={{
-              color: '#888',
+              color: '#444',
               marginBottom: '25px',
-              lineHeight: '1.6'
+              lineHeight: '1.6',
+              fontSize: '0.85rem',
+              ...mono
             }}>
               Opting out of {pendingCompany.name} data collection may affect your experience
             </p>
@@ -742,56 +634,38 @@ export default function BigTech() {
               marginBottom: '25px'
             }}>
               {[
-                {
-                  icon: '⚠️',
-                  text: 'Personalized recommendations may become less relevant',
-                  color: '#ffaa00'
-                },
-                {
-                  icon: '⚠️',
-                  text: 'Search results may be less personalized',
-                  color: '#ffaa00'
-                },
-                {
-                  icon: '✓',
-                  text: 'Your account and content will NOT be deleted',
-                  color: '#4aff88'
-                },
-                {
-                  icon: '✓',
-                  text: 'You will still be able to use the service normally',
-                  color: '#4aff88'
-                },
-                {
-                  icon: '✓',
-                  text: 'Your personal data will be significantly reduced',
-                  color: '#4aff88'
-                },
-                {
-                  icon: '✓',
-                  text: 'Your identity will be much better protected',
-                  color: '#4aff88'
-                }
+                { symbol: '!', text: 'Personalized recommendations may become less relevant' },
+                { symbol: '!', text: 'Search results may be less personalized' },
+                { symbol: '+', text: 'Your account and content will NOT be deleted' },
+                { symbol: '+', text: 'You will still be able to use the service normally' },
+                { symbol: '+', text: 'Your personal data will be significantly reduced' },
+                { symbol: '+', text: 'Your identity will be much better protected' },
               ].map(item => (
                 <div key={item.text} style={{
                   display: 'flex',
                   gap: '10px',
                   alignItems: 'flex-start',
-                  fontSize: '0.9rem'
+                  fontSize: '0.82rem',
+                  ...mono
                 }}>
-                  <span style={{color: item.color}}>{item.icon}</span>
-                  <span style={{color: '#666'}}>{item.text}</span>
+                  <span style={{
+                    color: item.symbol === '+' ? '#fff' : '#444',
+                    flexShrink: 0
+                  }}>
+                    [{item.symbol}]
+                  </span>
+                  <span style={{ color: '#444' }}>{item.text}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{display: 'flex', gap: '12px'}}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={confirmOptOut}
                 className="button"
-                style={{flex: 1}}
+                style={{ flex: 1 }}
               >
-                Yes, Protect My Privacy
+                Protect My Privacy
               </button>
               <button
                 onClick={() => setShowWarning(false)}
@@ -799,11 +673,11 @@ export default function BigTech() {
                   flex: 1,
                   background: 'transparent',
                   border: '1px solid #222',
-                  color: '#666',
-                  padding: '15px',
-                  borderRadius: '8px',
+                  color: '#444',
+                  padding: '14px',
                   cursor: 'pointer',
-                  fontSize: '1rem'
+                  fontSize: '0.85rem',
+                  ...mono
                 }}
               >
                 Cancel

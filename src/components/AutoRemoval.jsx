@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 
 const ALL_BROKERS = [
+  // Data Brokers (30)
   { id: 'acxiom', name: 'Acxiom', category: 'Data Broker' },
   { id: 'epsilon', name: 'Epsilon', category: 'Data Broker' },
   { id: 'oracle', name: 'Oracle Data Cloud', category: 'Data Broker' },
@@ -25,13 +26,15 @@ const ALL_BROKERS = [
   { id: 'alliant', name: 'Alliant', category: 'Data Broker' },
   { id: 'cardlytics', name: 'Cardlytics', category: 'Data Broker' },
   { id: 'crossix', name: 'Crossix', category: 'Data Broker' },
-  { id: 'datalogix', name: 'Datalogix', category: 'Data Broker' },
   { id: 'drawbridge', name: 'Drawbridge', category: 'Data Broker' },
   { id: 'krux', name: 'Krux Digital', category: 'Data Broker' },
   { id: 'addthis', name: 'AddThis', category: 'Data Broker' },
   { id: 'adsquare', name: 'Adsquare', category: 'Data Broker' },
   { id: 'exelate', name: 'eXelate', category: 'Data Broker' },
   { id: 'zoominfo', name: 'ZoomInfo', category: 'Data Broker' },
+  { id: 'yodlee', name: 'Yodlee', category: 'Data Broker' },
+
+  // Marketing (22)
   { id: 'harte-hanks', name: 'Harte-Hanks', category: 'Marketing' },
   { id: 'merkle', name: 'Merkle', category: 'Marketing' },
   { id: 'conversant', name: 'Conversant', category: 'Marketing' },
@@ -54,7 +57,8 @@ const ALL_BROKERS = [
   { id: 'weborama', name: 'Weborama', category: 'Marketing' },
   { id: 'windfall', name: 'Windfall', category: 'Marketing' },
   { id: 'xandr', name: 'Xandr', category: 'Marketing' },
-  { id: 'yodlee', name: 'Yodlee', category: 'Marketing' },
+
+  // People Search (64)
   { id: 'spokeo', name: 'Spokeo', category: 'People Search' },
   { id: 'whitepages', name: 'WhitePages', category: 'People Search' },
   { id: 'beenverified', name: 'BeenVerified', category: 'People Search' },
@@ -73,14 +77,10 @@ const ALL_BROKERS = [
   { id: 'anywho', name: 'AnyWho', category: 'People Search' },
   { id: 'publicrecordsnow', name: 'Public Records Now', category: 'People Search' },
   { id: 'backgroundalert', name: 'Background Alert', category: 'People Search' },
-  { id: 'clustrmaps', name: 'ClustrMaps', category: 'People Search' },
-  { id: 'dataveria', name: 'Dataveria', category: 'People Search' },
-  { id: 'dobsearch', name: 'DOBSearch', category: 'People Search' },
   { id: 'fastpeoplesearch', name: 'Fast People Search', category: 'People Search' },
   { id: 'gladiknow', name: 'Glad I Know', category: 'People Search' },
   { id: 'idtrue', name: 'IDTrue', category: 'People Search' },
   { id: 'infotracer', name: 'InfoTracer', category: 'People Search' },
-  { id: 'iverify', name: 'iVerify', category: 'People Search' },
   { id: 'locateplus', name: 'LocatePlus', category: 'People Search' },
   { id: 'nuwber', name: 'Nuwber', category: 'People Search' },
   { id: 'officialusa', name: 'OfficialUSA', category: 'People Search' },
@@ -103,90 +103,114 @@ const ALL_BROKERS = [
   { id: 'voterrecords', name: 'Voter Records', category: 'People Search' },
   { id: 'xlek', name: 'Xlek', category: 'People Search' },
   { id: 'yellowpages', name: 'Yellow Pages', category: 'People Search' },
-  { id: 'google', name: 'Google', category: 'Big Tech' },
-  { id: 'meta', name: 'Meta / Facebook', category: 'Big Tech' },
-  { id: 'amazon', name: 'Amazon', category: 'Big Tech' },
-  { id: 'microsoft', name: 'Microsoft', category: 'Big Tech' },
-  { id: 'apple', name: 'Apple', category: 'Big Tech' },
-  { id: 'twitter', name: 'Twitter / X', category: 'Big Tech' },
-  { id: 'tiktok', name: 'TikTok', category: 'Big Tech' },
-  { id: 'spotify', name: 'Spotify', category: 'Big Tech' },
-  { id: 'linkedin', name: 'LinkedIn', category: 'Big Tech' },
-  { id: 'snapchat', name: 'Snapchat', category: 'Big Tech' },
-  { id: 'netflix', name: 'Netflix', category: 'Big Tech' },
-  { id: 'uber', name: 'Uber', category: 'Big Tech' },
-  { id: 'airbnb', name: 'Airbnb', category: 'Big Tech' },
-  { id: 'pinterest', name: 'Pinterest', category: 'Big Tech' },
-  { id: 'reddit', name: 'Reddit', category: 'Big Tech' },
-  { id: 'adobe', name: 'Adobe', category: 'Big Tech' },
-  { id: 'samsung', name: 'Samsung', category: 'Big Tech' },
+  { id: '411', name: '411.com', category: 'People Search' },
+  { id: 'addresssearch', name: 'AddressSearch', category: 'People Search' },
+  { id: 'advancedbackgroundchecks', name: 'Advanced Background Checks', category: 'People Search' },
+  { id: 'americaphonebook', name: 'AmericaPhoneBook', category: 'People Search' },
+  { id: 'archives', name: 'Archives.com', category: 'People Search' },
+  { id: 'arrestfacts', name: 'ArrestFacts', category: 'People Search' },
+  { id: 'backgroundcheckers', name: 'BackgroundCheckers', category: 'People Search' },
+  { id: 'checkpeople', name: 'CheckPeople', category: 'People Search' },
+  { id: 'clustrmaps', name: 'ClustrMaps', category: 'People Search' },
+  { id: 'cocofinder', name: 'CocoFinder', category: 'People Search' },
+  { id: 'cyberbackgroundchecks', name: 'Cyber Background Checks', category: 'People Search' },
+  { id: 'dataveria', name: 'Dataveria', category: 'People Search' },
+  { id: 'easybackgroundchecks', name: 'EasyBackgroundChecks', category: 'People Search' },
+  { id: 'findpeoplesearch', name: 'FindPeopleSearch', category: 'People Search' },
+  { id: 'freepeopledirectory', name: 'FreePeopleDirectory', category: 'People Search' },
+  { id: 'homemetry', name: 'Homemetry', category: 'People Search' },
+  { id: 'houseforyou', name: 'HouseForYou', category: 'People Search' },
+  { id: 'kiwisearches', name: 'Kiwi Searches', category: 'People Search' },
+  { id: 'neighborwho', name: 'NeighborWho', category: 'People Search' },
+  { id: 'newenglandfacts', name: 'NewEnglandFacts', category: 'People Search' },
 ]
 
-const CATEGORIES = ['All', 'Big Tech', 'People Search', 'Data Broker', 'Marketing']
+const CATEGORIES = ['All', 'People Search', 'Data Broker', 'Marketing']
 
-const getCategoryColor = (category) => {
-  switch(category) {
-    case 'Big Tech': return '#4a9eff'
-    case 'People Search': return '#ff6b6b'
-    case 'Data Broker': return '#ffaa00'
-    case 'Marketing': return '#4aff88'
-    default: return '#888'
-  }
-}
-export default function AutoRemoval() {
-  const [profile, setProfile] = useState({
-    full_name: '',
-    email: '',
-    city: '',
-    state: '',
-    country: ''
+export default function AutoRemoval({ onRemovalSent }) {
+  const [profile, setProfile] = useState({ 
+    full_name: '', 
+    email: '', 
+    city: '', 
+    state: '', 
+    country: '',
+    address: '',
+    zip: '',
+    phone: ''
   })
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState(null)
   const [profileLoading, setProfileLoading] = useState(true)
   const [saved, setSaved] = useState(false)
-  const [selected, setSelected] = useState(
-    new Set(ALL_BROKERS.map(b => b.id))
-  )
+  const [selected, setSelected] = useState(new Set(ALL_BROKERS.map(b => b.id)))
   const [activeCategory, setActiveCategory] = useState('All')
+  const [authComplete, setAuthComplete] = useState(false)
 
-  useEffect(() => {
-    fetchProfile()
+  useEffect(() => { 
+    fetchProfile() 
   }, [])
 
   const fetchProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setProfileLoading(false)
+      return
+    }
+    
     const { data } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .maybeSingle()
+    
     if (data) {
-      setProfile(data)
+      setProfile({
+        full_name: data.full_name || '',
+        email: data.email || user.email || '',
+        city: data.city || '',
+        state: data.state || '',
+        country: data.country || '',
+        address: data.address || '',
+        zip: data.zip || '',
+        phone: data.phone || ''
+      })
+      setAuthComplete(data.authorization_signed || false)
     } else {
       setProfile(prev => ({ ...prev, email: user.email }))
     }
+    
     setProfileLoading(false)
   }
 
   const saveProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-    await supabase
+    
+    const { error } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, ...profile })
+      .update({ 
+        full_name: profile.full_name,
+        email: profile.email,
+        city: profile.city,
+        state: profile.state,
+        country: profile.country,
+        address: profile.address,
+        zip: profile.zip,
+        phone: profile.phone
+      })
+      .eq('id', user.id)
+
+    if (error) {
+      console.error('Profile update error:', error)
+    }
+    
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
   const toggleBroker = (id) => {
     const newSelected = new Set(selected)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
-    } else {
-      newSelected.add(id)
-    }
+    newSelected.has(id) ? newSelected.delete(id) : newSelected.add(id)
     setSelected(newSelected)
   }
 
@@ -195,36 +219,52 @@ export default function AutoRemoval() {
     if (category === 'All') {
       setSelected(new Set(ALL_BROKERS.map(b => b.id)))
     } else {
-      const categoryIds = ALL_BROKERS
-        .filter(b => b.category === category)
-        .map(b => b.id)
-      setSelected(new Set(categoryIds))
+      setSelected(new Set(ALL_BROKERS.filter(b => b.category === category).map(b => b.id)))
     }
   }
 
-  const deselectAll = () => {
-    setSelected(new Set())
-  }
-
-  const selectAll = () => {
-    setSelected(new Set(ALL_BROKERS.map(b => b.id)))
-  }
+  const deselectAll = () => setSelected(new Set())
+  const selectAll = () => setSelected(new Set(ALL_BROKERS.map(b => b.id)))
 
   const sendRemovalEmails = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      alert('Please log in first')
+      return
+    }
+
+    if (!authComplete) {
+      alert('Please sign the authorization form before initiating removals')
+      return
+    }
+
     if (!profile.full_name || !profile.email) {
       alert('Please fill in your name and email first')
       return
     }
+    
     if (selected.size === 0) {
       alert('Please select at least one company')
       return
     }
+    
     setLoading(true)
     setResults(null)
+    
     try {
       await saveProfile()
+      
       const { data: { session } } = await supabase.auth.getSession()
+      
+      if (!session) {
+        alert('Session expired. Please log in again.')
+        setLoading(false)
+        return
+      }
+
       const selectedBrokers = ALL_BROKERS.filter(b => selected.has(b.id))
+      
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-optout-emails`,
         {
@@ -236,15 +276,36 @@ export default function AutoRemoval() {
           },
           body: JSON.stringify({
             profile,
-            selectedBrokers: selectedBrokers.map(b => b.id)
+            selectedBrokers: selectedBrokers.map(b => b.id),
+            user_id: user.id
           })
         }
       )
+      
       const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`)
+      }
+      
       setResults(data)
+      
+      if (data.sent > 0) {
+        const nextRemoval = new Date()
+        nextRemoval.setDate(nextRemoval.getDate() + 30)
+        
+        await supabase.from('profiles').update({
+          last_removal_date: new Date().toISOString(),
+          next_removal_date: nextRemoval.toISOString()
+        }).eq('id', user.id)
+        
+        if (onRemovalSent) onRemovalSent()
+      }
     } catch (err) {
+      console.error('Send error:', err)
       alert('Something went wrong: ' + err.message)
     }
+    
     setLoading(false)
   }
 
@@ -253,246 +314,116 @@ export default function AutoRemoval() {
     : ALL_BROKERS.filter(b => b.category === activeCategory)
 
   if (profileLoading) return (
-    <div style={{color: '#888', textAlign: 'center', padding: '40px'}}>
+    <div style={{ color: '#444', textAlign: 'center', padding: '40px', fontFamily: "'Share Tech Mono', monospace" }}>
       Loading...
     </div>
   )
 
   return (
-    <div style={{
-      background: '#111',
-      border: '1px solid #1e1e1e',
-      borderRadius: '16px',
-      padding: '35px',
-      marginBottom: '25px'
-    }}>
-      <div style={{marginBottom: '25px'}}>
-        <h2 style={{marginBottom: '8px'}}>🤖 Automated Removal</h2>
-        <p style={{color: '#555', fontSize: '0.9rem'}}>
+    <div style={{ background: '#000', border: '1px solid #1a1a1a', padding: '35px', marginBottom: '25px' }}>
+      <div style={{ marginBottom: '25px' }}>
+        <h2 style={{ marginBottom: '8px', fontFamily: "'Share Tech Mono', monospace", letterSpacing: '2px', color: '#fff' }}>
+          Automated Removal
+        </h2>
+        <p style={{ color: '#444', fontSize: '0.85rem' }}>
           Select which companies to send opt-out requests to
         </p>
       </div>
 
-      {/* Profile Section */}
-      <div style={{
-        background: '#0a0a0a',
-        border: '1px solid #1e1e1e',
-        borderRadius: '12px',
-        padding: '25px',
-        marginBottom: '20px'
-      }}>
-        <h3 style={{
-          fontSize: '0.85rem',
-          color: '#555',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          marginBottom: '20px'
+      {!authComplete && (
+        <div style={{ 
+          background: '#050505', 
+          border: '1px solid #333', 
+          padding: '20px', 
+          marginBottom: '20px',
+          textAlign: 'center' 
         }}>
+          <p style={{ color: '#666', fontSize: '0.8rem', fontFamily: "'Share Tech Mono', monospace", marginBottom: '15px' }}>
+            AUTHORIZATION REQUIRED BEFORE AUTOMATED REMOVAL
+          </p>
+        </div>
+      )}
+
+      <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '25px', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '0.75rem', color: '#444', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', fontFamily: "'Share Tech Mono', monospace" }}>
           Your Information
         </h3>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '15px',
-          marginBottom: '15px'
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
           {[
             { key: 'full_name', label: 'Full Name', placeholder: 'John Doe' },
             { key: 'email', label: 'Email', placeholder: 'you@email.com' },
+            { key: 'phone', label: 'Phone', placeholder: '(555) 123-4567' },
+            { key: 'address', label: 'Street Address', placeholder: '123 Main St' },
             { key: 'city', label: 'City', placeholder: 'New York' },
             { key: 'state', label: 'State', placeholder: 'NY' },
-            { key: 'country', label: 'Country', placeholder: 'United States' }
+            { key: 'zip', label: 'ZIP Code', placeholder: '10001' },
+            { key: 'country', label: 'Country', placeholder: 'United States' },
           ].map(field => (
             <div key={field.key}>
-              <label style={{
-                display: 'block',
-                color: '#444',
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                marginBottom: '8px'
-              }}>
+              <label style={{ display: 'block', color: '#444', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
                 {field.label}
               </label>
               <input
                 type="text"
                 placeholder={field.placeholder}
                 value={profile[field.key] || ''}
-                onChange={(e) => setProfile({
-                  ...profile,
-                  [field.key]: e.target.value
-                })}
+                onChange={(e) => setProfile({ ...profile, [field.key]: e.target.value })}
                 className="input"
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
               />
             </div>
           ))}
         </div>
         <button
           onClick={saveProfile}
-          style={{
-            background: 'transparent',
-            border: '1px solid #222',
-            color: saved ? '#4aff88' : '#666',
-            padding: '8px 20px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '0.85rem'
-          }}
+          style={{ background: 'transparent', border: '1px solid #333', color: saved ? '#fff' : '#555', padding: '8px 20px', cursor: 'pointer', fontSize: '0.8rem', fontFamily: "'Share Tech Mono', monospace", letterSpacing: '1px', transition: 'all 0.2s' }}
         >
-          {saved ? '✓ Saved' : 'Save Info'}
+          {saved ? 'Saved' : 'Save Info'}
         </button>
       </div>
 
-      {/* Selection Controls */}
-      <div style={{
-        background: '#0a0a0a',
-        border: '1px solid #1e1e1e',
-        borderRadius: '12px',
-        padding: '25px',
-        marginBottom: '20px'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          gap: '10px'
-        }}>
-          <h3 style={{
-            fontSize: '0.85rem',
-            color: '#555',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}>
+      <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '25px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+          <h3 style={{ fontSize: '0.75rem', color: '#444', textTransform: 'uppercase', letterSpacing: '2px', fontFamily: "'Share Tech Mono', monospace" }}>
             Select Companies ({selected.size} selected)
           </h3>
-          <div style={{display: 'flex', gap: '8px'}}>
-            <button
-              onClick={selectAll}
-              style={{
-                background: 'transparent',
-                border: '1px solid #222',
-                color: '#4a9eff',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
-            >
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={selectAll} style={{ background: 'transparent', border: '1px solid #333', color: '#fff', padding: '6px 14px', cursor: 'pointer', fontSize: '0.75rem', fontFamily: "'Share Tech Mono', monospace", letterSpacing: '1px' }}>
               Select All
             </button>
-            <button
-              onClick={deselectAll}
-              style={{
-                background: 'transparent',
-                border: '1px solid #222',
-                color: '#ff6b6b',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.8rem'
-              }}
-            >
+            <button onClick={deselectAll} style={{ background: 'transparent', border: '1px solid #333', color: '#555', padding: '6px 14px', cursor: 'pointer', fontSize: '0.75rem', fontFamily: "'Share Tech Mono', monospace", letterSpacing: '1px' }}>
               Deselect All
             </button>
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          marginBottom: '20px',
-          flexWrap: 'wrap'
-        }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
           {CATEGORIES.map(cat => (
             <button
               key={cat}
               onClick={() => selectCategory(cat)}
-              style={{
-                background: activeCategory === cat ? '#4a9eff' : 'transparent',
-                border: `1px solid ${activeCategory === cat ? '#4a9eff' : '#222'}`,
-                color: activeCategory === cat ? '#fff' : '#666',
-                padding: '6px 14px',
-                borderRadius: '999px',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                transition: 'all 0.2s'
-              }}
+              style={{ background: activeCategory === cat ? '#fff' : 'transparent', border: '1px solid #333', color: activeCategory === cat ? '#000' : '#555', padding: '6px 14px', cursor: 'pointer', fontSize: '0.75rem', fontFamily: "'Share Tech Mono', monospace", letterSpacing: '1px', transition: 'all 0.2s' }}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {/* Broker Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: '8px',
-          maxHeight: '300px',
-          overflowY: 'auto',
-          padding: '5px'
-        }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '6px', maxHeight: '300px', overflowY: 'auto', padding: '4px' }}>
           {filteredBrokers.map(broker => (
             <div
               key={broker.id}
               onClick={() => toggleBroker(broker.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 12px',
-                background: selected.has(broker.id) ? '#0a1a0a' : '#111',
-                border: `1px solid ${selected.has(broker.id)
-                  ? getCategoryColor(broker.category) + '44'
-                  : '#1e1e1e'}`,
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.15s'
-              }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', background: selected.has(broker.id) ? '#111' : '#000', border: `1px solid ${selected.has(broker.id) ? '#444' : '#1a1a1a'}`, cursor: 'pointer', transition: 'all 0.15s' }}
             >
-              <div style={{
-                width: '16px',
-                height: '16px',
-                borderRadius: '4px',
-                border: `2px solid ${selected.has(broker.id)
-                  ? getCategoryColor(broker.category)
-                  : '#333'}`,
-                background: selected.has(broker.id)
-                  ? getCategoryColor(broker.category)
-                  : 'transparent',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                transition: 'all 0.15s'
-              }}>
-                {selected.has(broker.id) && (
-                  <span style={{
-                    color: '#000',
-                    fontSize: '10px',
-                    fontWeight: '900'
-                  }}>
-                    ✓
-                  </span>
-                )}
+              <div style={{ width: '14px', height: '14px', border: `1px solid ${selected.has(broker.id) ? '#fff' : '#333'}`, background: selected.has(broker.id) ? '#fff' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                {selected.has(broker.id) && <span style={{ color: '#000', fontSize: '9px', fontWeight: '900' }}>x</span>}
               </div>
               <div>
-                <div style={{
-                  fontSize: '0.8rem',
-                  color: selected.has(broker.id) ? '#fff' : '#666',
-                  fontWeight: selected.has(broker.id) ? '600' : '400'
-                }}>
+                <div style={{ fontSize: '0.75rem', color: selected.has(broker.id) ? '#fff' : '#555', fontFamily: "'Share Tech Mono', monospace" }}>
                   {broker.name}
                 </div>
-                <div style={{
-                  fontSize: '0.65rem',
-                  color: getCategoryColor(broker.category),
-                  opacity: 0.7
-                }}>
+                <div style={{ fontSize: '0.6rem', color: '#333', fontFamily: "'Share Tech Mono', monospace" }}>
                   {broker.category}
                 </div>
               </div>
@@ -501,95 +432,132 @@ export default function AutoRemoval() {
         </div>
       </div>
 
-      {/* Send Button */}
       <button
         onClick={sendRemovalEmails}
         className="button"
-        disabled={loading || selected.size === 0}
-        style={{width: '100%', marginBottom: '15px'}}
+        disabled={loading || selected.size === 0 || !authComplete}
+        style={{ width: '100%', marginBottom: '15px', opacity: !authComplete ? 0.5 : 1 }}
       >
-        {loading
-          ? '📧 Sending Removal Requests...'
-          : `🤖 Send Opt-Out To ${selected.size} Selected Companies`}
+        {loading ? 'Sending Removal Requests...' : !authComplete ? 'Sign Authorization First' : `Send Opt-Out To ${selected.size} Companies`}
       </button>
 
-      {/* Results */}
       {results && (
-        <div style={{marginTop: '25px'}}>
-          <div style={{
-            background: '#0a1a0a',
-            border: '1px solid #1a3a1a',
-            borderRadius: '12px',
-            padding: '25px',
-            marginBottom: '15px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '3rem',
-              fontWeight: '900',
-              color: '#4aff88',
-              marginBottom: '8px'
-            }}>
+        <div style={{ marginTop: '25px' }}>
+          <div style={{ background: '#050505', border: '1px solid #333', padding: '25px', marginBottom: '15px', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', fontWeight: '900', color: '#fff', marginBottom: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
               {results.sent}/{results.total}
             </div>
-            <div style={{color: '#4aff88', fontSize: '0.9rem'}}>
-              Removal requests sent successfully
+            <div style={{ color: '#fff', fontSize: '0.85rem', letterSpacing: '1px', fontFamily: "'Share Tech Mono', monospace" }}>
+              Removal requests sent
+            </div>
+            {results.failed > 0 && (
+              <div style={{ color: '#ff4444', fontSize: '0.75rem', marginTop: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
+                {results.failed} failed — manual send required below
+              </div>
+            )}
+            {results.skipped > 0 && (
+              <div style={{ color: '#444', fontSize: '0.75rem', marginTop: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
+                {results.skipped} skipped (recently sent)
+              </div>
+            )}
+            <div style={{ color: '#444', fontSize: '0.8rem', marginTop: '8px', fontFamily: "'Share Tech Mono', monospace" }}>
+              Auto re-removal scheduled for 30 days from now
             </div>
           </div>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            maxHeight: '300px',
-            overflowY: 'auto'
-          }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '400px', overflowY: 'auto' }}>
             {results.results?.map((result) => (
-              <div
-                key={result.broker}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '12px 16px',
-                  background: '#0a0a0a',
-                  border: `1px solid ${result.success ? '#1a3a1a' : '#3a1a1a'}`,
-                  borderRadius: '8px'
-                }}
-              >
-                <div>
-                  <span style={{fontSize: '0.9rem'}}>{result.broker}</span>
-                  {result.type && (
-                    <span style={{
-                      marginLeft: '8px',
-                      fontSize: '0.7rem',
-                      color: '#444'
-                    }}>
-                      {result.type}
+              <div key={result.broker} style={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                padding: '12px 16px', 
+                background: '#000', 
+                border: '1px solid #1a1a1a',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.85rem', fontFamily: "'Share Tech Mono', monospace", color: '#fff' }}>
+                      {result.broker}
                     </span>
-                  )}
+                    {result.type && (
+                      <span style={{ marginLeft: '8px', fontSize: '0.7rem', color: '#333', fontFamily: "'Share Tech Mono', monospace" }}>
+                        {result.type}
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ 
+                    color: result.success ? '#fff' : result.manual_send ? '#ff4444' : '#444', 
+                    fontSize: '0.75rem', 
+                    fontFamily: "'Share Tech Mono', monospace", 
+                    letterSpacing: '1px' 
+                  }}>
+                    {result.success ? 'SENT' : result.manual_send ? 'MANUAL REQUIRED' : 'FAILED'}
+                  </span>
                 </div>
-                <span style={{
-                  color: result.success ? '#4aff88' : '#ff6b6b',
-                  fontSize: '0.8rem'
-                }}>
-                  {result.success ? '✓ Sent' : '✗ Failed'}
-                </span>
+
+                {result.manual_send && (
+                  <div style={{ 
+                    background: '#050505', 
+                    border: '1px solid #222', 
+                    padding: '12px',
+                    marginTop: '4px'
+                  }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '8px'
+                    }}>
+                      <span style={{ color: '#666', fontSize: '0.7rem', fontFamily: "'Share Tech Mono', monospace" }}>
+                        COPY AND SEND MANUALLY
+                      </span>
+                      <button
+                        onClick={() => {
+                          const text = `To: ${result.manual_send.to}\nSubject: ${result.manual_send.subject}\n\n${result.manual_send.body}`
+                          navigator.clipboard.writeText(text)
+                        }}
+                        style={{
+                          background: 'transparent',
+                          border: '1px solid #333',
+                          color: '#888',
+                          padding: '4px 10px',
+                          cursor: 'pointer',
+                          fontSize: '0.7rem',
+                          fontFamily: "'Share Tech Mono', monospace"
+                        }}
+                      >
+                        [ COPY ALL ]
+                      </button>
+                    </div>
+                    <div style={{ color: '#444', fontSize: '0.7rem', fontFamily: "'Share Tech Mono', monospace", marginBottom: '4px' }}>
+                      To: {result.manual_send.to}
+                    </div>
+                    <div style={{ color: '#444', fontSize: '0.7rem', fontFamily: "'Share Tech Mono', monospace", marginBottom: '4px' }}>
+                      Subject: {result.manual_send.subject}
+                    </div>
+                    <pre style={{ 
+                      color: '#555', 
+                      fontSize: '0.65rem', 
+                      fontFamily: "'Share Tech Mono', monospace",
+                      whiteSpace: 'pre-wrap',
+                      maxHeight: '100px',
+                      overflowY: 'auto',
+                      background: '#000',
+                      padding: '8px',
+                      border: '1px solid #1a1a1a'
+                    }}>
+                      {result.manual_send.body.substring(0, 300)}...
+                    </pre>
+                  </div>
+                )}
               </div>
             ))}
           </div>
 
-          <div style={{
-            marginTop: '15px',
-            padding: '15px',
-            background: '#0a0f1a',
-            border: '1px solid #1a2a3a',
-            borderRadius: '8px',
-            color: '#4a9eff',
-            fontSize: '0.8rem',
-            textAlign: 'center'
-          }}>
-            ℹ️ Brokers must respond within 30 days under CCPA/GDPR
+          <div style={{ marginTop: '15px', padding: '15px', background: '#000', border: '1px solid #1a1a1a', color: '#444', fontSize: '0.75rem', textAlign: 'center', fontFamily: "'Share Tech Mono', monospace" }}>
+            Brokers must respond within 30 days under CCPA/GDPR.
+            Your data will be automatically re-removed every 30 days.
           </div>
         </div>
       )}

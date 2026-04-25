@@ -5,12 +5,611 @@
 }
 
 body {
-  background-color: #0a0a0a;
-  color: #ffffff;
-  font-family: 'Segoe UI', sans-serif;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
   min-height: 100vh;
 }
 
 #root {
   min-height: 100vh;
+  background: transparent;
+}
+
+/* ── ENTRANCE ANIMATIONS ── */
+@keyframes entrance-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes entrance-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* Apply entrance to all direct children of page containers */
+.dash-container > *,
+.tool-container > *,
+.auth-box > * {
+  animation: entrance-fade 0.5s ease both;
+}
+
+.dash-container > *:nth-child(1) { animation-delay: 0.05s; }
+.dash-container > *:nth-child(2) { animation-delay: 0.12s; }
+.dash-container > *:nth-child(3) { animation-delay: 0.19s; }
+.dash-container > *:nth-child(4) { animation-delay: 0.26s; }
+.dash-container > *:nth-child(5) { animation-delay: 0.33s; }
+.dash-container > *:nth-child(6) { animation-delay: 0.40s; }
+
+.tool-container > *:nth-child(1) { animation-delay: 0.05s; }
+.tool-container > *:nth-child(2) { animation-delay: 0.12s; }
+.tool-container > *:nth-child(3) { animation-delay: 0.19s; }
+.tool-container > *:nth-child(4) { animation-delay: 0.26s; }
+.tool-container > *:nth-child(5) { animation-delay: 0.33s; }
+.tool-container > *:nth-child(6) { animation-delay: 0.40s; }
+.tool-container > *:nth-child(7) { animation-delay: 0.47s; }
+
+.auth-box > *:nth-child(1) { animation-delay: 0.05s; }
+.auth-box > *:nth-child(2) { animation-delay: 0.12s; }
+.auth-box > *:nth-child(3) { animation-delay: 0.19s; }
+.auth-box > *:nth-child(4) { animation-delay: 0.26s; }
+.auth-box > *:nth-child(5) { animation-delay: 0.33s; }
+
+/* Stat boxes stagger */
+.stats-row .stat-box:nth-child(1) { animation: entrance-fade 0.4s ease 0.15s both; }
+.stats-row .stat-box:nth-child(2) { animation: entrance-fade 0.4s ease 0.22s both; }
+.stats-row .stat-box:nth-child(3) { animation: entrance-fade 0.4s ease 0.29s both; }
+.stats-row .stat-box:nth-child(4) { animation: entrance-fade 0.4s ease 0.36s both; }
+
+/* Alias cards stagger */
+.alias-card {
+  animation: entrance-left 0.4s ease both;
+}
+.alias-card:nth-child(1) { animation-delay: 0.1s; }
+.alias-card:nth-child(2) { animation-delay: 0.17s; }
+.alias-card:nth-child(3) { animation-delay: 0.24s; }
+.alias-card:nth-child(4) { animation-delay: 0.31s; }
+.alias-card:nth-child(5) { animation-delay: 0.38s; }
+.alias-card:nth-child(6) { animation-delay: 0.45s; }
+
+/* ── AUTH ── */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: transparent;
+  position: relative;
+  z-index: 10;
+}
+
+.auth-box {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #222;
+  padding: 50px 40px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-logo {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #fff;
+  margin-bottom: 30px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.auth-box h2 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.auth-sub {
+  color: #444;
+  margin-bottom: 30px;
+  font-size: 0.9rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field label {
+  font-size: 0.75rem;
+  color: #444;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.input {
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+  padding: 14px 18px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  border-radius: 0;
+}
+
+.input:focus {
+  border-color: #fff;
+}
+
+.input::placeholder {
+  color: #2a2a2a;
+}
+
+.button {
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 14px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:hover {
+  background: #ccc;
+}
+
+.button:disabled {
+  background: #222;
+  color: #444;
+  cursor: not-allowed;
+}
+
+/* Button scan line */
+.button::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 40%;
+  height: 100%;
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.button:hover::after {
+  animation: btn-scan 0.5s ease forwards;
+}
+
+@keyframes btn-scan {
+  from { transform: translateX(-100%) skewX(-15deg); }
+  to   { transform: translateX(300%) skewX(-15deg); }
+}
+
+.error-box {
+  background: #000;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.switch-text {
+  text-align: center;
+  margin-top: 25px;
+  color: #333;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.switch-link {
+  color: #fff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.switch-link:hover {
+  color: #ccc;
+}
+
+/* ── DASHBOARD ── */
+.dashboard {
+  min-height: 100vh;
+  background: transparent;
+  position: relative;
+  z-index: 10;
+}
+
+.dash-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  border-bottom: 1px solid #1a1a1a;
+  background: rgba(0, 0, 0, 0.85);
+  position: relative;
+  z-index: 200;
+  animation: entrance-fade 0.4s ease both;
+}
+
+.logo {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.nav-center {
+  display: flex;
+  gap: 30px;
+}
+
+/* ── NAV LINKS ── */
+.nav-link {
+  position: relative;
+  cursor: pointer;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #333;
+  padding-bottom: 3px;
+  user-select: none;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.nav-link.active {
+  color: #fff;
+  border-bottom: 1px solid #fff;
+}
+
+.nav-link::before,
+.nav-link::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  color: #fff;
+}
+
+.nav-link.glitch::before {
+  animation: glitch-before 0.4s steps(2) forwards;
+}
+
+.nav-link.glitch::after {
+  animation: glitch-after 0.4s steps(2) forwards;
+}
+
+.nav-link.glitch {
+  animation: flicker 0.4s steps(2) forwards;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-email {
+  color: #333;
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.sign-out {
+  background: transparent;
+  border: 1px solid #222;
+  color: #444;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
+  border-radius: 0;
+}
+
+.sign-out:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+.dash-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 50px 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.dash-header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.dash-sub {
+  color: #333;
+  font-size: 0.85rem;
+  max-width: 400px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.stats-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.stat-box {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #1a1a1a;
+  padding: 25px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 5px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.stat-label {
+  color: #333;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.empty-state {
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #1a1a1a;
+  padding: 60px;
+  text-align: center;
+}
+
+.empty-state h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.empty-state p {
+  color: #1a1a1a;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.aliases-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alias-card {
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #1a1a1a;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+}
+
+.alias-card:hover {
+  border-color: #333;
+}
+
+.alias-info {
+  flex: 1;
+}
+
+.alias-email {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.alias-date {
+  font-size: 0.75rem;
+  color: #333;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.alias-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alias-status {
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.alias-status.active {
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
+}
+
+.delete-btn {
+  background: transparent;
+  border: 1px solid #222;
+  color: #444;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  border-radius: 0;
+}
+
+.delete-btn:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* ── TOOLS ── */
+.tool-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 50px 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.tool-header {
+  margin-bottom: 40px;
+}
+
+.tool-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.tool-sub {
+  color: #333;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.tool-card {
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid #1a1a1a;
+  padding: 40px;
+}
+
+.tool-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── GLITCH KEYFRAMES ── */
+@keyframes glitch-before {
+  0%   { opacity: 0; clip-path: inset(0 0 90% 0);  transform: translateX(-3px); }
+  20%  { opacity: 1; clip-path: inset(20% 0 60% 0); transform: translateX(3px); }
+  40%  { opacity: 1; clip-path: inset(50% 0 20% 0); transform: translateX(-2px); }
+  60%  { opacity: 1; clip-path: inset(70% 0 5% 0);  transform: translateX(4px); }
+  80%  { opacity: 0.5; clip-path: inset(10% 0 80% 0); transform: translateX(-1px); }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateX(0); }
+}
+
+@keyframes glitch-after {
+  0%   { opacity: 0; clip-path: inset(80% 0 0% 0);  transform: translateX(3px); }
+  20%  { opacity: 1; clip-path: inset(40% 0 40% 0); transform: translateX(-3px); }
+  40%  { opacity: 1; clip-path: inset(10% 0 70% 0); transform: translateX(2px); }
+  60%  { opacity: 1; clip-path: inset(60% 0 10% 0); transform: translateX(-4px); }
+  80%  { opacity: 0.5; clip-path: inset(30% 0 50% 0); transform: translateX(1px); }
+  100% { opacity: 0; clip-path: inset(0 0 100% 0); transform: translateX(0); }
+}
+
+@keyframes flicker {
+  0%   { opacity: 1; }
+  15%  { opacity: 0.2; }
+  30%  { opacity: 1; }
+  45%  { opacity: 0.4; }
+  60%  { opacity: 1; }
+  75%  { opacity: 0.1; }
+  90%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes scanline-move {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(100vh); }
+}
+
+.scanline-sweep {
+  position: fixed;
+  left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255,255,255,0.018),
+    transparent
+  );
+  z-index: 9000;
+  pointer-events: none;
+  animation: scanline-move 6s linear infinite;
+}
+
+/* When coming from a transition — no fade, appear instantly */
+.dashboard.instant .dash-container > *,
+.dashboard.instant .tool-container > *,
+.dashboard.instant .stats-row .stat-box,
+.dashboard.instant .alias-card {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
 }

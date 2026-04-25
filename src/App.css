@@ -5,25 +5,29 @@
 }
 
 body {
-  background-color: #0a0a0a;
-  color: #ffffff;
-  font-family: 'Segoe UI', sans-serif;
+  background-color: #000;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
   min-height: 100vh;
 }
 
-/* AUTH STYLES */
+#root {
+  min-height: 100vh;
+}
+
+/* AUTH */
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background: #000;
 }
 
 .auth-box {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 16px;
+  background: #000;
+  border: 1px solid #222;
   padding: 50px 40px;
   width: 100%;
   max-width: 420px;
@@ -32,20 +36,24 @@ body {
 .auth-logo {
   font-size: 1rem;
   font-weight: 800;
-  letter-spacing: 4px;
-  color: #4a9eff;
+  letter-spacing: 6px;
+  color: #fff;
   margin-bottom: 30px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .auth-box h2 {
   font-size: 1.8rem;
   margin-bottom: 8px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .auth-sub {
-  color: #666;
+  color: #444;
   margin-bottom: 30px;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .auth-form {
@@ -61,79 +69,91 @@ body {
 }
 
 .field label {
-  font-size: 0.85rem;
-  color: #888;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: #444;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .input {
-  background: #0a0a0a;
+  background: #000;
   border: 1px solid #222;
   color: #fff;
-  padding: 15px 20px;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 14px 18px;
+  font-size: 0.9rem;
   outline: none;
   transition: border 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  border-radius: 0;
 }
 
 .input:focus {
-  border-color: #4a9eff;
+  border-color: #fff;
+}
+
+.input::placeholder {
+  color: #2a2a2a;
 }
 
 .button {
-  background: #4a9eff;
-  color: #fff;
+  background: #fff;
+  color: #000;
   border: none;
-  padding: 15px 20px;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 14px 20px;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
   margin-top: 10px;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 0;
 }
 
 .button:hover {
-  background: #3a8eef;
+  background: #ccc;
 }
 
 .button:disabled {
-  background: #2a5fa0;
+  background: #222;
+  color: #444;
   cursor: not-allowed;
 }
 
 .error-box {
-  background: #1a0a0a;
-  border: 1px solid #3a1a1a;
-  color: #ff6b6b;
+  background: #000;
+  border: 1px solid #fff;
+  color: #fff;
   padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .switch-text {
   text-align: center;
   margin-top: 25px;
-  color: #555;
-  font-size: 0.9rem;
+  color: #333;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .switch-link {
-  color: #4a9eff;
+  color: #fff;
   cursor: pointer;
-}
-
-.switch-link:hover {
   text-decoration: underline;
 }
 
-/* DASHBOARD STYLES */
+.switch-link:hover {
+  color: #ccc;
+}
+
+/* DASHBOARD */
 .dashboard {
   min-height: 100vh;
-  background: #0a0a0a;
+  background: #000;
 }
 
 .dash-nav {
@@ -142,13 +162,40 @@ body {
   align-items: center;
   padding: 20px 40px;
   border-bottom: 1px solid #1a1a1a;
+  background: #000;
 }
 
 .logo {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  letter-spacing: 4px;
-  color: #4a9eff;
+  letter-spacing: 6px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.nav-center {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-link {
+  color: #333;
+  cursor: pointer;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+  padding-bottom: 3px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.nav-link:hover {
+  color: #fff;
+}
+
+.nav-link.active {
+  color: #fff;
+  border-bottom: 1px solid #fff;
 }
 
 .nav-right {
@@ -158,23 +205,26 @@ body {
 }
 
 .user-email {
-  color: #555;
-  font-size: 0.85rem;
+  color: #333;
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .sign-out {
   background: transparent;
   border: 1px solid #222;
-  color: #888;
-  padding: 8px 16px;
-  border-radius: 6px;
+  color: #444;
+  padding: 7px 14px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   transition: all 0.2s;
+  font-family: 'Share Tech Mono', monospace;
+  letter-spacing: 1px;
+  border-radius: 0;
 }
 
 .sign-out:hover {
-  border-color: #444;
+  border-color: #fff;
   color: #fff;
 }
 
@@ -194,72 +244,76 @@ body {
 .dash-header h1 {
   font-size: 2rem;
   margin-bottom: 8px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .dash-sub {
-  color: #666;
-  font-size: 0.9rem;
+  color: #333;
+  font-size: 0.85rem;
   max-width: 400px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .stats-row {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   margin-bottom: 40px;
 }
 
 .stat-box {
   flex: 1;
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 12px;
+  background: #000;
+  border: 1px solid #1a1a1a;
   padding: 25px;
   text-align: center;
 }
 
 .stat-number {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #4a9eff;
+  color: #fff;
   margin-bottom: 5px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .stat-label {
-  color: #555;
-  font-size: 0.85rem;
+  color: #333;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .empty-state {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 12px;
+  background: #000;
+  border: 1px solid #1a1a1a;
   padding: 60px;
   text-align: center;
 }
 
 .empty-state h3 {
-  color: #444;
+  color: #333;
   margin-bottom: 10px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .empty-state p {
-  color: #333;
-  font-size: 0.9rem;
+  color: '#1a1a1a';
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .aliases-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .alias-card {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 12px;
-  padding: 20px 25px;
+  background: #000;
+  border: 1px solid #1a1a1a;
+  padding: 18px 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -267,35 +321,65 @@ body {
 }
 
 .alias-card:hover {
-  border-color: #2a2a2a;
+  border-color: #333;
+}
+
+.alias-info {
+  flex: 1;
 }
 
 .alias-email {
-  font-family: monospace;
-  font-size: 1rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
   color: #fff;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .alias-date {
-  font-size: 0.8rem;
-  color: #444;
+  font-size: 0.75rem;
+  color: '#1a1a1a';
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.alias-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .alias-status {
-  font-size: 0.8rem;
-  padding: 5px 12px;
-  border-radius: 20px;
+  font-size: 0.7rem;
+  padding: 4px 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .alias-status.active {
-  background: #0a1a0a;
-  border: 1px solid #1a3a1a;
-  color: #4aff88;
+  background: #000;
+  border: 1px solid #222;
+  color: #fff;
 }
-/* TOOL STYLES */
+
+.delete-btn {
+  background: transparent;
+  border: 1px solid #222;
+  color: #444;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  border-radius: 0;
+}
+
+.delete-btn:hover {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* TOOLS */
 .tool-container {
   max-width: 700px;
   margin: 0 auto;
@@ -309,17 +393,19 @@ body {
 .tool-header h1 {
   font-size: 2rem;
   margin-bottom: 10px;
+  color: #fff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .tool-sub {
-  color: #666;
-  font-size: 0.95rem;
+  color: #333;
+  font-size: 0.85rem;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .tool-card {
-  background: #111;
-  border: 1px solid #1e1e1e;
-  border-radius: 16px;
+  background: #000;
+  border: 1px solid #1a1a1a;
   padding: 40px;
 }
 
@@ -329,143 +415,8 @@ body {
   gap: 12px;
 }
 
-.results {
-  margin-top: 30px;
-}
-
-.safe-box {
-  text-align: center;
-  padding: 40px;
-  background: #0a1a0a;
-  border: 1px solid #1a3a1a;
-  border-radius: 12px;
-}
-
-.safe-icon {
-  font-size: 3rem;
-  color: #4aff88;
-  margin-bottom: 15px;
-}
-
-.safe-box h3 {
-  color: #4aff88;
-  font-size: 1.5rem;
-  margin-bottom: 8px;
-}
-
-.safe-box p {
-  color: #666;
-}
-
-.breach-results {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.breach-summary {
-  text-align: center;
-  padding: 30px;
-  background: #1a0a0a;
-  border: 1px solid #3a1a1a;
-  border-radius: 12px;
-}
-
-.breach-count {
-  font-size: 4rem;
-  font-weight: 900;
-  color: #ff6b6b;
-}
-
-.breach-count-label {
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-size: 0.8rem;
-}
-
-.breach-warning {
-  color: #ff6b6b;
-  font-size: 0.95rem;
-  text-align: center;
-  padding: 15px;
-  background: #1a0a0a;
-  border-radius: 8px;
-  border: 1px solid #3a1a1a;
-}
-
-.breach-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.breach-card {
-  background: #0a0a0a;
-  border: 1px solid #1e1e1e;
-  border-radius: 12px;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.breach-name {
-  font-weight: 700;
-  margin-bottom: 5px;
-}
-
-.breach-date {
-  color: #555;
-  font-size: 0.8rem;
-  margin-bottom: 5px;
-}
-
-.breach-data {
-  color: #ff6b6b;
-  font-size: 0.8rem;
-}
-
-.breach-badge {
-  font-size: 0.75rem;
-  padding: 5px 12px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.breach-badge.pwned {
-  background: #1a0a0a;
-  border: 1px solid #3a1a1a;
-  color: #ff6b6b;
-}
-
-.nav-center {
-  display: flex;
-  gap: 30px;
-}
-
-.nav-link {
-  color: #555;
-  cursor: pointer;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: color 0.2s;
-  padding-bottom: 3px;
-}
-
-.nav-link:hover {
-  color: #fff;
-}
-
-.nav-link.active {
-  color: #4a9eff;
-  border-bottom: 2px solid #4a9eff;
-}
-
 @keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
   100% { opacity: 1; }
 }
