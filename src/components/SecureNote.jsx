@@ -480,7 +480,7 @@ export default function SecureNote() {
                 COPY LINK TO CLIPBOARD
               </button>
               <div style={{ marginTop: '15px', color: '#444', fontSize: '0.7rem', fontFamily: MONO, textAlign: 'center' }}>
-                Share this link securely (Signal, WhatsApp, etc.). The recipient does NOT need a Lateoarcanus account.
+                Share this link securely (Signal, WhatsApp, etc.). The recipient does NOT need a redactxd account.
               </div>
             </div>
           )}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const LINES = [
-  '> INITIALIZING LATEOARCANUS v2.4.1...',
+  '> INITIALIZING redactxd v2.4.1...',
   '> LOADING ENCRYPTION MODULES...',
   '> ESTABLISHING SECURE TUNNEL...',
   '> MASKING IDENTITY...',
@@ -79,7 +79,7 @@ export default function BootSequence({ onComplete }) {
           fontSize: '1.1rem',
           letterSpacing: '4px',
         }}>
-          LATEOARCANUS
+          redactxd
         </div>
 
         {visibleLines.map((line, i) => (

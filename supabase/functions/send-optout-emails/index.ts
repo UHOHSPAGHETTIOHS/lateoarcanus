@@ -190,7 +190,7 @@ REQUESTED ACTIONS:
 
 If you do not have a published privacy policy, please be advised that this is itself a violation of CCPA Section 1798.130(a)(5) and GDPR Article 13, and will be noted in any formal complaint.
 
-I authorize LateoArcanus to act as my authorized agent in submitting and following up on this request.
+I authorize redactxd to act as my authorized agent in submitting and following up on this request.
 
 Sincerely,
 ${profile.full_name}
@@ -272,7 +272,7 @@ serve(async (req) => {
             subject: `[${broker.name}] CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
             html: `<div style="font-family: 'Courier New', monospace; background: #f5f5f5; padding: 20px; max-width: 600px; margin: 0 auto;">
 <pre style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; color: #222; white-space: pre-wrap; word-wrap: break-word; background: #fff; padding: 20px; border: 1px solid #ccc;">${generateCCPARequest(broker.name, profile)}</pre>
-<p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">This email was sent by LateoArcanus on behalf of ${profile.full_name}</p>
+<p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">This email was sent by redactxd on behalf of ${profile.full_name}</p>
 </div>`,
             text: generateCCPARequest(broker.name, profile),
             reply_to: profile.email

@@ -96,7 +96,7 @@ export default function Dashboard() {
 
   const generateAlias = async () => {
     const random = Math.random().toString(36).substring(2, 10)
-    const alias  = `hidden.${random}@lateoarcanus.com`
+    const alias  = `hidden.${random}@redactxd.com`
     const { error } = await supabase
       .from('aliases')
       .insert({ user_id: user.id, alias, active: true })
@@ -203,7 +203,7 @@ export default function Dashboard() {
       {showMFA && <MFASetup onClose={() => setShowMFA(false)} />}
 
       <nav className="dash-nav">
-        <div className="logo">LATEOARCANUS</div>
+        <div className="logo">redactxd</div>
         <div className="nav-center">
           {[
             { id: 'dashboard', label: 'Aliases'         },

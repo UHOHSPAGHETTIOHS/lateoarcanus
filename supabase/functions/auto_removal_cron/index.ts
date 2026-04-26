@@ -162,7 +162,7 @@ Under CCPA Section 1798.105 and GDPR Article 17, you are required to:
 
 Failure to comply may result in formal complaints to the California Attorney General and relevant EU Data Protection Authorities.
 
-I authorize LateoArcanus to act as my authorized agent in submitting and following up on this request.
+I authorize redactxd to act as my authorized agent in submitting and following up on this request.
 
 Sincerely,
 ${profile.full_name}
@@ -196,7 +196,7 @@ REQUESTED ACTIONS:
 4. Provide confirmation of deletion within 30 days as required by law
 5. Ensure my data is not re-collected or re-added in the future
 
-I authorize LateoArcanus to act as my authorized agent in submitting and following up on this request.
+I authorize redactxd to act as my authorized agent in submitting and following up on this request.
 
 Sincerely,
 ${profile.full_name}
@@ -356,10 +356,11 @@ serve(async (req) => {
               'Authorization': `Bearer ${RESEND_API_KEY}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              from: 'removals@lateoarcanus.com',
+                        body: JSON.stringify({
+              from: 'removals@redactxd.com',
               to: broker.email,
               subject: `${isFollowUp ? 'FOLLOW-UP: ' : ''}CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
+              html: `<pre style="font-family: monospace; white-space: pre-wrap;">${generateCCPARequest(broker.name, profile, isFollowUp)}</pre>`,
               text: generateCCPARequest(broker.name, profile, isFollowUp),
               reply_to: profile.email
             })

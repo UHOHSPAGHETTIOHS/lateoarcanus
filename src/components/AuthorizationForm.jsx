@@ -93,7 +93,7 @@ export default function AuthorizationForm({ onComplete }) {
         }}>
 {`CONSUMER DATA PRIVACY AUTHORIZATION
 
-I, the undersigned consumer, hereby authorize LateoArcanus 
+I, the undersigned consumer, hereby authorize redactxd 
 ("Authorized Agent") to act on my behalf to:
 
 1. Submit requests to delete my personal information from data 
@@ -117,7 +117,7 @@ This authorization remains in effect until revoked in writing.
 
 CONSUMER RIGHTS:
 You may revoke this authorization at any time by contacting 
-privacy@lateoarcanus.com. Revocation does not affect actions 
+privacy@redactxd.com. Revocation does not affect actions 
 already taken.`}
         </pre>
       </div>
@@ -152,7 +152,7 @@ already taken.`}
           fontSize: '0.8rem',
           fontFamily: "'Share Tech Mono', monospace"
         }}>
-          I AUTHORIZE LATEOARCANUS TO ACT AS MY AGENT
+          I AUTHORIZE redactxd TO ACT AS MY AGENT
         </span>
       </label>
 
