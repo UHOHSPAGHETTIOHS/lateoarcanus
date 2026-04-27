@@ -212,6 +212,7 @@ export default function Dashboard() {
             { id: 'bigtech',   label: 'Big Tech'        },
             { id: 'tracker',   label: 'Tracker Scanner' },
              { id: 'secure-note', label: 'Secure Notes' },
+             { id: 'cleanup', label: 'Cleanup' },
           ].map(link => (
             <span
               key={link.id}
@@ -271,6 +272,8 @@ export default function Dashboard() {
         <TrackerScanner />
         ) : activePage === 'secure-note' ? (
   <SecureNote />
+  ) : activePage === 'cleanup' ? (
+  <AccountCleanup />
       ) : (
         <div className="dash-container">
           <div className="dash-header">
