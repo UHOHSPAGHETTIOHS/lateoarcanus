@@ -8,8 +8,7 @@ export default function AccountCleanup() {
   const [accounts, setAccounts] = useState([])
   const [loading, setLoading] = useState(true)
   const [scanning, setScanning] = useState(false)
-  const [filter, setFilter] = useState('pending') // pending, keep, auto_delete, deleted
-  const [showGmailAuth, setShowGmailAuth] = useState(false)
+  const [filter, setFilter] = useState('pending')
 
   useEffect(() => {
     fetchAccounts()
@@ -17,7 +16,10 @@ export default function AccountCleanup() {
 
   const fetchAccounts = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    if (!user) {
+      setLoading(false)
+      return
+    }
 
     const { data } = await supabase
       .from('discovered_accounts')
@@ -30,27 +32,41 @@ export default function AccountCleanup() {
   }
 
   const startEmailScan = async () => {
-  const { data: { session } } = await supabase.auth.getSession()
-  
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gmail-auth-start`,
-    {
-      headers: { 'Authorization': `Bearer ${session.access_token}` }
+    setScanning(true)
+    
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      alert('Please log in first')
+      setScanning(false)
+      return
     }
-  )
-  
-  const { url } = await response.json()
-  window.location.href = url  // Redirect to Google
-}
 
-useEffect(() => {
-  const params = new URLSearchParams(window.location.search)
-  if (params.get('scan') === 'start') {
-    // Clear the URL parameter and start scanning
-    window.history.replaceState({}, '', '/cleanup')
-    performEmailScan()  // Call your email scanning function
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/gmail-auth-start`,
+        {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      const data = await response.json()
+      
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        alert('Failed to start email scan. Please try again.')
+        setScanning(false)
+      }
+    } catch (error) {
+      console.error('Error starting scan:', error)
+      alert('Error connecting to email service')
+      setScanning(false)
+    }
   }
-}, [])
 
   const updateAccountStatus = async (accountId, newStatus) => {
     const { error } = await supabase
@@ -65,25 +81,6 @@ useEffect(() => {
     }
   }
 
-  const queueForDeletion = async (accountId) => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    // Add to deletion queue
-    const { error } = await supabase
-      .from('deletion_queue')
-      .insert({
-        user_id: user.id,
-        account_id: accountId,
-        status: 'queued',
-        scheduled_for: new Date()
-      })
-
-    if (!error) {
-      await updateAccountStatus(accountId, 'auto_delete')
-    }
-  }
-
   const getStatusBadge = (status) => {
     switch(status) {
       case 'keep': return <span style={{ color: '#44ff44' }}>[ KEEP ]</span>
@@ -93,6 +90,23 @@ useEffect(() => {
       default: return <span style={{ color: '#666' }}>[ UNKNOWN ]</span>
     }
   }
+
+  // Check for scan parameter after returning from Google
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('scan') === 'start') {
+      window.history.replaceState({}, '', '/cleanup')
+      // Trigger the actual email scan after OAuth
+      const performScan = async () => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          // Call your scan-email-accounts function here
+          console.log('Ready to scan emails')
+        }
+      }
+      performScan()
+    }
+  }, [])
 
   const pendingCount = accounts.filter(a => a.status === 'pending').length
   const keepCount = accounts.filter(a => a.status === 'keep').length
@@ -104,7 +118,9 @@ useEffect(() => {
     return a.status === filter
   })
 
-  if (loading) return <div style={{ color: '#444', ...MONO, textAlign: 'center', padding: '40px' }}>LOADING...</div>
+  if (loading) {
+    return <div style={{ color: '#444', ...MONO, textAlign: 'center', padding: '40px' }}>LOADING...</div>
+  }
 
   return (
     <div className="tool-container">
@@ -246,7 +262,7 @@ useEffect(() => {
                     KEEP
                   </button>
                   <button
-                    onClick={() => queueForDeletion(account.id)}
+                    onClick={() => updateAccountStatus(account.id, 'auto_delete')}
                     style={{
                       background: 'transparent',
                       border: '1px solid #ff4444',
@@ -301,14 +317,25 @@ useEffect(() => {
         ))}
       </div>
 
-      {filteredAccounts.length === 0 && (
+      {filteredAccounts.length === 0 && accounts.length > 0 && (
         <div style={{
           textAlign: 'center',
           padding: '60px',
           color: '#333',
           ...MONO
         }}>
-          NO ACCOUNTS FOUND IN THIS CATEGORY
+          NO ACCOUNTS IN THIS CATEGORY
+        </div>
+      )}
+
+      {accounts.length === 0 && !loading && (
+        <div style={{
+          textAlign: 'center',
+          padding: '60px',
+          color: '#333',
+          ...MONO
+        }}>
+          NO ACCOUNTS FOUND YET. CLICK SCAN TO GET STARTED.
         </div>
       )}
 

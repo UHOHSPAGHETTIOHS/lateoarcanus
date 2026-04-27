@@ -15,6 +15,7 @@ import NavClock from '../components/NavClock'
 import MFASetup from '../components/MFASetup'
 import DarkWebMonitor from '../components/DarkWebMonitor'
 import SecureNote from '../components/SecureNote'
+import AccountCleanup from '../components/AccountCleanup'
 
 const TOTAL_BROKERS = 116  // ← Updated from 52 to 116
 
