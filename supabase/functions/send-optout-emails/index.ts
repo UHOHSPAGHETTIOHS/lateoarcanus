@@ -10,8 +10,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// FULL broker list matching AutoRemoval.jsx ALL_BROKERS
+// FULL broker list (116 brokers, no Big Tech)
 const BROKER_CONTACTS = [
+  // Data Brokers (30)
   { id: 'acxiom', name: 'Acxiom', email: 'optout@acxiom.com' },
   { id: 'epsilon', name: 'Epsilon', email: 'privacy@epsilon.com' },
   { id: 'oracle', name: 'Oracle Data Cloud', email: 'datacloudoptout@oracle.com' },
@@ -41,8 +42,9 @@ const BROKER_CONTACTS = [
   { id: 'adsquare', name: 'Adsquare', email: 'privacy@adsquare.com' },
   { id: 'exelate', name: 'eXelate', email: 'privacy@nielsen.com' },
   { id: 'zoominfo', name: 'ZoomInfo', email: 'privacy@zoominfo.com' },
-  
-  // Marketing
+  { id: 'yodlee', name: 'Yodlee', email: 'privacy@yodlee.com' },
+
+  // Marketing (22)
   { id: 'harte-hanks', name: 'Harte-Hanks', email: 'privacy@harte-hanks.com' },
   { id: 'merkle', name: 'Merkle', email: 'privacy@merkleinc.com' },
   { id: 'conversant', name: 'Conversant', email: 'privacy@conversantmedia.com' },
@@ -65,9 +67,8 @@ const BROKER_CONTACTS = [
   { id: 'weborama', name: 'Weborama', email: 'privacy@weborama.com' },
   { id: 'windfall', name: 'Windfall', email: 'privacy@windfalldata.com' },
   { id: 'xandr', name: 'Xandr', email: 'privacy@xandr.com' },
-  { id: 'yodlee', name: 'Yodlee', email: 'privacy@yodlee.com' },
-  
-  // People Search
+
+  // People Search (64)
   { id: 'spokeo', name: 'Spokeo', email: 'privacy@spokeo.com' },
   { id: 'whitepages', name: 'WhitePages', email: 'privacy@whitepages.com' },
   { id: 'beenverified', name: 'BeenVerified', email: 'privacy@beenverified.com' },
@@ -112,7 +113,6 @@ const BROKER_CONTACTS = [
   { id: 'voterrecords', name: 'Voter Records', email: 'privacy@voterrecords.com' },
   { id: 'xlek', name: 'Xlek', email: 'privacy@xlek.com' },
   { id: 'yellowpages', name: 'Yellow Pages', email: 'privacy@yellowpages.com' },
-    // NEW People Search additions
   { id: '411', name: '411.com', email: 'privacy@411.com' },
   { id: 'addresssearch', name: 'AddressSearch', email: 'privacy@addresssearch.com' },
   { id: 'advancedbackgroundchecks', name: 'Advanced Background Checks', email: 'privacy@advancedbackgroundchecks.com' },
@@ -133,28 +133,7 @@ const BROKER_CONTACTS = [
   { id: 'kiwisearches', name: 'Kiwi Searches', email: 'privacy@kiwisearches.com' },
   { id: 'neighborwho', name: 'NeighborWho', email: 'privacy@neighborwho.com' },
   { id: 'newenglandfacts', name: 'NewEnglandFacts', email: 'privacy@newenglandfacts.com' },
-  
-  // Big Tech - no email opt-outs
-  { id: 'google', name: 'Google', email: null },
-  { id: 'meta', name: 'Meta / Facebook', email: null },
-  { id: 'amazon', name: 'Amazon', email: null },
-  { id: 'microsoft', name: 'Microsoft', email: null },
-  { id: 'apple', name: 'Apple', email: null },
-  { id: 'twitter', name: 'Twitter / X', email: null },
-  { id: 'tiktok', name: 'TikTok', email: null },
-  { id: 'spotify', name: 'Spotify', email: null },
-  { id: 'linkedin', name: 'LinkedIn', email: null },
-  { id: 'snapchat', name: 'Snapchat', email: null },
-  { id: 'netflix', name: 'Netflix', email: null },
-  { id: 'uber', name: 'Uber', email: null },
-  { id: 'airbnb', name: 'Airbnb', email: null },
-  { id: 'pinterest', name: 'Pinterest', email: null },
-  { id: 'reddit', name: 'Reddit', email: null },
-  { id: 'adobe', name: 'Adobe', email: null },
-  { id: 'samsung', name: 'Samsung', email: null },
 ]
-
-const YOUR_EMAIL = 'dawsonmsmith@protonmail.com'
 
 const generateCCPARequest = (brokerName: string, profile: any) => {
   return `To Whom It May Concern,
@@ -190,7 +169,7 @@ REQUESTED ACTIONS:
 
 If you do not have a published privacy policy, please be advised that this is itself a violation of CCPA Section 1798.130(a)(5) and GDPR Article 13, and will be noted in any formal complaint.
 
-I authorize redactxd to act as my authorized agent in submitting and following up on this request.
+I authorize Redactxd to act as my authorized agent in submitting and following up on this request.
 
 Sincerely,
 ${profile.full_name}
@@ -221,8 +200,7 @@ serve(async (req) => {
       )
     }
 
-    // Filter to brokers that have email addresses (for logging purposes)
-    // But send ALL emails to YOUR_EMAIL instead
+    // Filter to brokers that have email addresses
     const brokersToProcess = BROKER_CONTACTS.filter(b =>
       selectedBrokers.includes(b.id) && b.email
     )
@@ -234,8 +212,7 @@ serve(async (req) => {
 
     for (const broker of brokersToProcess) {
       try {
-        // Check if we already sent to this broker in last 14 days
-                // Check if we already have a successful/pending attempt for this broker
+        // Check if we already have a successful/pending attempt for this broker
         const { data: recent } = await supabase
           .from('removal_attempts')
           .select('id, status')
@@ -259,21 +236,19 @@ serve(async (req) => {
           .eq('broker_id', broker.id)
           .eq('status', 'failed')
 
-        // Send to YOUR email instead of broker's email
+        // Send to actual broker email
         const response = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${RESEND_API_KEY}`,
             'Content-Type': 'application/json'
           },
-                    body: JSON.stringify({
-            from: 'onboarding@resend.dev',
-            to: YOUR_EMAIL,
-            subject: `[${broker.name}] CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
-            html: `<div style="font-family: 'Courier New', monospace; background: #f5f5f5; padding: 20px; max-width: 600px; margin: 0 auto;">
-<pre style="font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.5; color: #222; white-space: pre-wrap; word-wrap: break-word; background: #fff; padding: 20px; border: 1px solid #ccc;">${generateCCPARequest(broker.name, profile)}</pre>
-<p style="font-size: 12px; color: #999; text-align: center; margin-top: 20px;">This email was sent by redactxd on behalf of ${profile.full_name}</p>
-</div>`,
+          body: JSON.stringify({
+            from: `Redactxd <removals@redactxd.com>`,
+            to: broker.email,
+            cc: 'removals@redactxd.com',
+            subject: `CCPA/GDPR Data Deletion Request - ${profile.full_name}`,
+            html: `<pre style="font-family: monospace; font-size: 14px; white-space: pre-wrap;">${generateCCPARequest(broker.name, profile)}</pre>`,
             text: generateCCPARequest(broker.name, profile),
             reply_to: profile.email
           })
@@ -308,29 +283,12 @@ serve(async (req) => {
           results.push({ broker: broker.name, success: false, type: 'email', error: emailData.message })
         }
 
-        await new Promise(resolve => setTimeout(resolve, 100))
+        // Rate limit to avoid being flagged as spam
+        await new Promise(resolve => setTimeout(resolve, 500))
 
       } catch (err: any) {
         failed++
         results.push({ broker: broker.name, success: false, type: 'error', error: err.message })
-      }
-    }
-
-    // Handle Big Tech / no-email brokers
-    const manualBrokers = selectedBrokers.filter((id: string) => {
-      const broker = BROKER_CONTACTS.find(b => b.id === id)
-      return broker && !broker.email
-    })
-
-    for (const brokerId of manualBrokers) {
-      const broker = BROKER_CONTACTS.find(b => b.id === brokerId)
-      if (broker) {
-        results.push({ 
-          broker: broker.name, 
-          success: false, 
-          type: 'manual', 
-          reason: 'requires_manual_opt_out' 
-        })
       }
     }
 
@@ -343,13 +301,12 @@ serve(async (req) => {
     }).eq('id', user_id)
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        sent, 
-        failed, 
+      JSON.stringify({
+        success: true,
+        sent,
+        failed,
         skipped,
-        manual: manualBrokers.length,
-        total: brokersToProcess.length + manualBrokers.length, 
+        total: brokersToProcess.length,
         results,
         next_removal: nextRemoval.toISOString()
       }),

@@ -27,3 +27,8 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/email-webhook/deno.json"
 entrypoint = "./functions/email-webhook/index.ts"
+[functions.email-forward]
+enabled = true
+verify_jwt = false
+import_map = "./functions/email-forward/deno.json"
+entrypoint = "./functions/email-forward/index.ts"
