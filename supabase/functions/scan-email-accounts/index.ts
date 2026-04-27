@@ -2,61 +2,60 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-const GMAIL_CLIENT_ID = Deno.env.get('GMAIL_CLIENT_ID')
-const GMAIL_CLIENT_SECRET = Deno.env.get('GMAIL_CLIENT_SECRET')
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Common account creation email patterns
-const ACCOUNT_PATTERNS = [
-  { pattern: /welcome to/i, type: 'welcome' },
-  { pattern: /account created/i, type: 'creation' },
-  { pattern: /verify your email/i, type: 'verification' },
-  { pattern: /thanks for signing up/i, type: 'welcome' },
-  { pattern: /your account is ready/i, type: 'creation' },
-  { pattern: /confirm your account/i, type: 'verification' },
-  { pattern: /you're confirmed/i, type: 'confirmation' },
-]
-
-// Company name extraction patterns
-const COMPANY_PATTERNS = [
-  { pattern: /from:\s*([\w\s]+?)\s*</, type: 'from_header' },
-  { pattern: /welcome to (\w+)/i, type: 'body' },
-  { pattern: /your (\w+) account/i, type: 'body' },
-]
-
 serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_KEY!)
-    const { user_id, access_token } = await req.json()
-
-    if (!user_id) {
+    // 1. Get and validate the JWT from Authorization header
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'user_id required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Missing authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    // 2. Create authenticated Supabase client
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    })
+
+    // 3. Get the authenticated user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired session', details: userError?.message }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // 4. Parse request body
+    const { access_token } = await req.json()
+    
     if (!access_token) {
       return new Response(
-        JSON.stringify({ error: 'Gmail access_token required' }),
+        JSON.stringify({ error: 'access_token required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log(`Scanning emails for user: ${user_id}`)
+    console.log(`🔍 Scanning Gmail for user: ${user.id} (${user.email})`)
 
-    // Step 1: Fetch emails from Gmail API
+    // 5. Fetch emails from Gmail API
     const gmailResponse = await fetch(
-      'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=500&q="welcome" OR "account created" OR "verify your email" OR "thanks for signing up"',
+      'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100&q="welcome" OR "account created" OR "verify your email" OR "sign up" OR "thanks for joining"',
       {
         headers: {
           'Authorization': `Bearer ${access_token}`,
@@ -69,24 +68,22 @@ serve(async (req) => {
       const errorText = await gmailResponse.text()
       console.error('Gmail API error:', errorText)
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch emails from Gmail' }),
+        JSON.stringify({ error: 'Failed to fetch emails from Gmail', details: errorText }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     const gmailData = await gmailResponse.json()
     const messages = gmailData.messages || []
-    
-    console.log(`Found ${messages.length} potential account creation emails`)
+    console.log(`📧 Found ${messages.length} potential account emails`)
 
-    // Step 2: Process each email to extract company info
-    const discoveredCompanies = new Map()
+    // 6. Extract company names from emails
+    const companies = new Map() // Use Map to track first_seen date
 
-    for (const message of messages.slice(0, 100)) { // Limit to 100 for performance
+    for (const msg of messages.slice(0, 50)) { // Limit to 50 for performance
       try {
-        // Fetch individual email details
         const emailResponse = await fetch(
-          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`,
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`,
           {
             headers: {
               'Authorization': `Bearer ${access_token}`,
@@ -99,113 +96,95 @@ serve(async (req) => {
 
         const emailData = await emailResponse.json()
         
-        // Extract from and subject headers
+        // Extract from and date headers
         let fromHeader = ''
-        let subject = ''
         let receivedDate = null
-
+        
         for (const header of emailData.payload?.headers || []) {
           if (header.name === 'From') fromHeader = header.value
-          if (header.name === 'Subject') subject = header.value
           if (header.name === 'Date') receivedDate = header.value
         }
 
-        // Extract company name from email
+        // Extract company name from "From" header
         let companyName = ''
         
-        // Try to get company from "From" header
-        const fromMatch = fromHeader.match(/from:\s*"?([^"<]+)/i)
+        // Try pattern: "Company Name <no-reply@company.com>"
+        const fromMatch = fromHeader.match(/"?([^"<]+)"?\s*</)
         if (fromMatch) {
           companyName = fromMatch[1].trim()
         }
         
-        // Try subject patterns
+        // Try domain extraction
         if (!companyName) {
-          const welcomeMatch = subject.match(/welcome to (\w+)/i)
-          if (welcomeMatch) companyName = welcomeMatch[1]
-        }
-        
-        if (!companyName) {
-          const yourMatch = subject.match(/your (\w+) account/i)
-          if (yourMatch) companyName = yourMatch[1]
-        }
-
-        if (!companyName) {
-          // Fallback: use domain from fromHeader
           const domainMatch = fromHeader.match(/@([\w\-]+\.\w+)/)
           if (domainMatch) {
-            companyName = domainMatch[1].split('.')[0]
+            const domain = domainMatch[1].split('.')[0]
+            companyName = domain.charAt(0).toUpperCase() + domain.slice(1)
           }
         }
 
-        if (!companyName) continue
+        if (!companyName || companyName.length < 2) continue
 
-        // Store discovered company
-        if (!discoveredCompanies.has(companyName)) {
-          discoveredCompanies.set(companyName, {
-            company_name: companyName,
-            first_seen: receivedDate ? new Date(receivedDate) : new Date(),
-            emails_found: 1
+        // Store company with first seen date
+        if (!companies.has(companyName)) {
+          companies.set(companyName, {
+            name: companyName,
+            first_seen: receivedDate ? new Date(receivedDate) : new Date()
           })
-        } else {
-          const existing = discoveredCompanies.get(companyName)
-          existing.emails_found++
         }
-
-      } catch (error) {
-        console.error('Error processing email:', error)
+      } catch (err) {
+        console.error('Error processing email:', err)
         continue
       }
     }
 
-    // Step 3: Save discovered accounts to database
+    console.log(`🏢 Extracted ${companies.size} unique companies`)
+
+    // 7. Save discovered accounts to database
     const savedAccounts = []
-    for (const [companyName, data] of discoveredCompanies) {
-      // Check if account already exists for this user
+    for (const [name, data] of companies) {
+      // Check if account already exists
       const { data: existing } = await supabase
         .from('discovered_accounts')
         .select('id')
-        .eq('user_id', user_id)
-        .eq('company_name', companyName)
+        .eq('user_id', user.id)
+        .eq('company_name', name)
         .maybeSingle()
 
       if (!existing) {
-        const { data: inserted, error } = await supabase
+        const { data: inserted, error: insertError } = await supabase
           .from('discovered_accounts')
           .insert({
-            user_id: user_id,
-            company_name: companyName,
-            signup_date: data.first_seen,
+            user_id: user.id,
+            company_name: name,
+            signup_date: data.first_seen.toISOString(),
             status: 'pending'
           })
           .select()
           .single()
 
-        if (inserted && !error) {
+        if (inserted && !insertError) {
           savedAccounts.push(inserted)
+          console.log(`✅ Saved new account: ${name}`)
         }
       }
     }
 
-    console.log(`Saved ${savedAccounts.length} new discovered accounts`)
+    console.log(`💾 Saved ${savedAccounts.length} new accounts`)
 
     return new Response(
       JSON.stringify({
         success: true,
         total_emails_scanned: messages.length,
-        accounts_found: discoveredCompanies.size,
+        accounts_found: companies.size,
         new_accounts: savedAccounts.length,
-        accounts: Array.from(discoveredCompanies.entries()).map(([name, data]) => ({
-          name,
-          first_seen: data.first_seen,
-          emails_found: data.emails_found
-        }))
+        accounts: Array.from(companies.keys())
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error:', error.message)
+    console.error('❌ Error:', error.message)
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
