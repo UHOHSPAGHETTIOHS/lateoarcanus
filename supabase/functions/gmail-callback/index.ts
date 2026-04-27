@@ -14,6 +14,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function getFunctionsBaseUrl(): string {
+  const u = new URL(supabaseUrl)
+  const host = u.hostname.endsWith('.supabase.co')
+    ? u.hostname.replace('.supabase.co', '.functions.supabase.co')
+    : u.hostname
+  return `https://${host}`
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -53,7 +61,7 @@ serve(async (req) => {
       code,
       client_id: googleClientId,
       client_secret: googleClientSecret,
-      redirect_uri: `${supabaseUrl.replace('.supabase.co', '.functions.supabase.co')}/functions/v1/gmail-callback`,
+      redirect_uri: `${getFunctionsBaseUrl()}/functions/v1/gmail-callback`,
       grant_type: 'authorization_code',
     }),
   })
@@ -80,6 +88,9 @@ serve(async (req) => {
   // Clean up the used state
   await supabase.from('oauth_states').delete().eq('state', state)
 
-  // Redirect back to the app with success
-  return Response.redirect(`${appUrl}/cleanup?scan=start`, 302)
+  // FIXED: Simple redirect without any token in URL
+  const redirectTo = `${appUrl}/cleanup?scan=start`
+  console.log('Redirecting to:', redirectTo)
+  
+  return Response.redirect(redirectTo, 302)
 })

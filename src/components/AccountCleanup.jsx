@@ -9,9 +9,11 @@ export default function AccountCleanup() {
   const [loading, setLoading] = useState(true)
   const [scanning, setScanning] = useState(false)
   const [filter, setFilter] = useState('pending')
+  const [scanStatus, setScanStatus] = useState(null)
 
   useEffect(() => {
     fetchAccounts()
+    checkForOAuthRedirect()
   }, [])
 
   const fetchAccounts = async () => {
@@ -29,6 +31,91 @@ export default function AccountCleanup() {
 
     if (data) setAccounts(data)
     setLoading(false)
+  }
+
+  const checkForOAuthRedirect = async () => {
+    // Check if we have a hash or query param from OAuth
+    const hash = window.location.hash
+    const params = new URLSearchParams(window.location.search)
+    
+    console.log('Checking for OAuth redirect...')
+    console.log('Hash:', hash)
+    console.log('Params:', window.location.search)
+    
+    // Check for access_token in hash (Google sends token in hash fragment)
+    if (hash && hash.includes('access_token')) {
+      console.log('Found access_token in hash')
+      const hashParams = new URLSearchParams(hash.substring(1))
+      const accessToken = hashParams.get('access_token')
+      
+      if (accessToken) {
+        // Clean up URL
+        window.history.replaceState({}, '', '/cleanup')
+        await startEmailScanWithToken(accessToken)
+      }
+    }
+    
+    // Check for scan=start in query params
+    if (params.get('scan') === 'start') {
+      console.log('Found scan=start in params')
+      window.history.replaceState({}, '', '/cleanup')
+      
+      // Fetch the token from our callback storage
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        // Get token from our oauth_states or user_gmail_tokens table
+        const { data: tokenData } = await supabase
+          .from('user_gmail_tokens')
+          .select('access_token')
+          .eq('user_id', session.user.id)
+          .single()
+        
+        if (tokenData?.access_token) {
+          await startEmailScanWithToken(tokenData.access_token)
+        }
+      }
+    }
+  }
+
+  const startEmailScanWithToken = async (accessToken) => {
+    setScanStatus('Scanning your email for accounts...')
+    
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      setScanStatus('Error: Please log in again')
+      return
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-email-accounts`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id,
+            access_token: accessToken
+          })
+        }
+      )
+
+      const result = await response.json()
+      console.log('Scan result:', result)
+      
+      if (result.success) {
+        setScanStatus(`Found ${result.accounts_found} accounts!`)
+        await fetchAccounts() // Reload the account list
+        setTimeout(() => setScanStatus(null), 3000)
+      } else {
+        setScanStatus('Error: ' + (result.error || 'Unknown error'))
+      }
+    } catch (error) {
+      console.error('Scan error:', error)
+      setScanStatus('Error: Could not scan email')
+    }
   }
 
   const startEmailScan = async () => {
@@ -56,6 +143,7 @@ export default function AccountCleanup() {
       const data = await response.json()
       
       if (data.url) {
+        // Redirect to Google OAuth
         window.location.href = data.url
       } else {
         alert('Failed to start email scan. Please try again.')
@@ -91,27 +179,9 @@ export default function AccountCleanup() {
     }
   }
 
-  // Check for scan parameter after returning from Google
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('scan') === 'start') {
-      window.history.replaceState({}, '', '/cleanup')
-      // Trigger the actual email scan after OAuth
-      const performScan = async () => {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          // Call your scan-email-accounts function here
-          console.log('Ready to scan emails')
-        }
-      }
-      performScan()
-    }
-  }, [])
-
   const pendingCount = accounts.filter(a => a.status === 'pending').length
   const keepCount = accounts.filter(a => a.status === 'keep').length
   const deleteCount = accounts.filter(a => a.status === 'auto_delete').length
-  const deletedCount = accounts.filter(a => a.status === 'deleted').length
 
   const filteredAccounts = accounts.filter(a => {
     if (filter === 'all') return true
@@ -131,10 +201,26 @@ export default function AccountCleanup() {
         </p>
       </div>
 
+      {/* Scan Status */}
+      {scanStatus && (
+        <div style={{
+          background: '#0a0a0a',
+          border: '1px solid #44ff44',
+          padding: '15px',
+          marginBottom: '20px',
+          textAlign: 'center',
+          ...MONO,
+          color: '#44ff44',
+          fontSize: '0.8rem'
+        }}>
+          {scanStatus}
+        </div>
+      )}
+
       {/* Stats */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '15px',
         marginBottom: '25px'
       }}>
@@ -145,10 +231,6 @@ export default function AccountCleanup() {
         <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '20px', textAlign: 'center' }}>
           <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#44ff44', ...MONO }}>{keepCount}</div>
           <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>TO KEEP</div>
-        </div>
-        <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ffaa44', ...MONO }}>{pendingCount}</div>
-          <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>TO REVIEW</div>
         </div>
         <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '20px', textAlign: 'center' }}>
           <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ff4444', ...MONO }}>{deleteCount}</div>
@@ -191,7 +273,7 @@ export default function AccountCleanup() {
       {/* Filters */}
       {accounts.length > 0 && (
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          {['pending', 'keep', 'auto_delete', 'deleted', 'all'].map(f => (
+          {['pending', 'keep', 'auto_delete', 'all'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}

@@ -52,7 +52,8 @@ serve(async (req) => {
     expires_at: expiresAt,
   })
 
-  const redirectUri = `${getFunctionsBaseUrl()}/functions/v1/gmail-callback`
+ // Inside gmail-auth-start/index.ts
+const redirectUri = `${getFunctionsBaseUrl()}/functions/v1/gmail-callback`
   const scope = 'https://www.googleapis.com/auth/gmail.readonly'
 
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
