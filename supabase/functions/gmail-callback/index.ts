@@ -88,9 +88,9 @@ serve(async (req) => {
   // Clean up the used state
   await supabase.from('oauth_states').delete().eq('state', state)
 
-  // FIXED: Simple redirect without any token in URL
-  const redirectTo = `${appUrl}/cleanup?scan=start`
-  console.log('Redirecting to:', redirectTo)
+  // After storing the token, redirect with user_id
+const redirectUrl = `${appUrl}/cleanup?scan=start&user_id=${stateRecord.user_id}`
+return Response.redirect(redirectUrl, 302)
   
   return Response.redirect(redirectTo, 302)
 })

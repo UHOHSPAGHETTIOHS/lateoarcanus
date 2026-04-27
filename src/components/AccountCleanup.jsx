@@ -34,42 +34,47 @@ export default function AccountCleanup() {
   }
 
   const checkForOAuthRedirect = async () => {
-    const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(window.location.search)
+  
+  if (params.get('scan') === 'start') {
+    console.log('🔄 OAuth redirect detected, fetching token...')
+    window.history.replaceState({}, '', '/cleanup')
+    setScanStatus('Connected! Scanning your email...')
     
-    if (params.get('scan') === 'start') {
-      console.log('🔄 OAuth redirect detected, fetching token...')
-      window.history.replaceState({}, '', '/cleanup')
-      setScanStatus('Connected! Scanning your email...')
-      
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
-        setScanStatus('Error: Please log in again')
-        return
-      }
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      setScanStatus('Error: Please log in again')
+      return
+    }
 
-      try {
-        // Fetch the stored Gmail token
-        const tokenResponse = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-gmail-token`,
-          {
-            headers: { 'Authorization': `Bearer ${session.access_token}` }
-          }
-        )
-        
-        const tokenData = await tokenResponse.json()
-        
-        if (tokenData.access_token) {
-          await startEmailScanWithToken(tokenData.access_token)
-        } else {
-          setScanStatus('Error: Could not retrieve Gmail access')
+    try {
+      // Fetch the stored Gmail token - now sending user_id in body
+      const tokenResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-gmail-token`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user_id: session.user.id
+          })
         }
-      } catch (error) {
-        console.error('Error getting token:', error)
-        setScanStatus('Error: Failed to connect to Gmail')
+      )
+      
+      const tokenData = await tokenResponse.json()
+      
+      if (tokenData.access_token) {
+        await startEmailScanWithToken(tokenData.access_token)
+      } else {
+        setScanStatus('Error: Could not retrieve Gmail access')
       }
+    } catch (error) {
+      console.error('Error getting token:', error)
+      setScanStatus('Error: Failed to connect to Gmail')
     }
   }
-
+}
   const startEmailScanWithToken = async (accessToken) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) {
