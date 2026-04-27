@@ -30,6 +30,17 @@ function App() {
       }
     })
   }, [])
+  
+  useEffect(() => {
+  const path = window.location.pathname
+  if (path.startsWith('/secure-note/')) {
+    // Extract note ID from URL
+    const noteId = path.split('/secure-note/')[1]
+    // You can pass this to SecureNote component
+    setActivePage('secure-note')
+    setCurrentNoteId(noteId)
+  }
+}, [])
 
   const handleBootComplete = () => {
     sessionStorage.setItem('booted', 'true')

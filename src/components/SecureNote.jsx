@@ -219,6 +219,21 @@ export default function SecureNote() {
     const days = Math.ceil((new Date(expiresAt) - new Date()) / (1000 * 60 * 60 * 24))
     return days > 0 ? `${days} days` : 'Expired'
   }
+  useEffect(() => {
+  const path = window.location.pathname
+  const hash = window.location.hash
+  
+  // Check if we're on a secure note page
+  if (path.includes('/secure-note/')) {
+    const noteId = path.split('/secure-note/')[1]
+    const keyMatch = hash.match(/key=([^&]+)/)
+    
+    if (keyMatch && noteId) {
+      const key = keyMatch[1]
+      decryptAndViewNote(noteId, key)
+    }
+  }
+}, [])
 
   // View for reading a decrypted note
   if (decryptedMessage) {
