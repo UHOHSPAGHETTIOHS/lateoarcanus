@@ -35,7 +35,7 @@ entrypoint = "./functions/email-forward/index.ts"
 
 [functions.scan-email-accounts]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/scan-email-accounts/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -46,7 +46,7 @@ entrypoint = "./functions/scan-email-accounts/index.ts"
 
 [functions.gmail-callback]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/gmail-callback/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -57,7 +57,7 @@ entrypoint = "./functions/gmail-callback/index.ts"
 
 [functions.gmail-auth-start]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/gmail-auth-start/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
@@ -68,7 +68,7 @@ entrypoint = "./functions/gmail-auth-start/index.ts"
 
 [functions.get-gmail-token]
 enabled = true
-verify_jwt = true
+verify_jwt = false
 import_map = "./functions/get-gmail-token/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx

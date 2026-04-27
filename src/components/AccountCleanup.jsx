@@ -76,42 +76,42 @@ export default function AccountCleanup() {
   }
 }
   const startEmailScanWithToken = async (accessToken) => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      setScanStatus('Error: Please log in again')
-      return
-    }
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-email-accounts`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            access_token: accessToken
-          })
-        }
-      )
-
-      const result = await response.json()
-      console.log('Scan result:', result)
-      
-      if (response.ok && result.success) {
-        setScanStatus(`✓ Found ${result.accounts_found} accounts!`)
-        await fetchAccounts() // Reload the account list
-        setTimeout(() => setScanStatus(null), 3000)
-      } else {
-        setScanStatus('Error: ' + (result.error || 'Unknown error'))
-      }
-    } catch (error) {
-      console.error('Scan error:', error)
-      setScanStatus('Error: Could not scan email')
-    }
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) {
+    setScanStatus('Error: Please log in again')
+    return
   }
+
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-email-accounts`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: session.user.id,
+          access_token: accessToken
+        })
+      }
+    )
+
+    const result = await response.json()
+    console.log('Scan result:', result)
+    
+    if (response.ok && result.success) {
+      setScanStatus(`✓ Found ${result.accounts_found} accounts!`)
+      await fetchAccounts()
+      setTimeout(() => setScanStatus(null), 3000)
+    } else {
+      setScanStatus('Error: ' + (result.error || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('Scan error:', error)
+    setScanStatus('Error: Could not scan email')
+  }
+}
 
   const startEmailScan = async () => {
     setScanning(true)

@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,39 +10,20 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // 1. Get and validate the JWT from Authorization header
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
+    // Get user_id and access_token from request body
+    const { user_id, access_token } = await req.json()
+    
+    if (!user_id) {
       return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'user_id required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
-
-    // 2. Create authenticated Supabase client
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
-      global: {
-        headers: { Authorization: authHeader }
-      }
-    })
-
-    // 3. Get the authenticated user
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
-    if (userError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid or expired session', details: userError?.message }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // 4. Parse request body
-    const { access_token } = await req.json()
     
     if (!access_token) {
       return new Response(
@@ -51,9 +32,12 @@ serve(async (req) => {
       )
     }
 
-    console.log(`🔍 Scanning Gmail for user: ${user.id} (${user.email})`)
+    console.log(`🔍 Scanning Gmail for user: ${user_id}`)
 
-    // 5. Fetch emails from Gmail API
+    // Use service role to access DB
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!)
+
+    // Fetch emails from Gmail API
     const gmailResponse = await fetch(
       'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=100&q="welcome" OR "account created" OR "verify your email" OR "sign up" OR "thanks for joining"',
       {
@@ -77,10 +61,10 @@ serve(async (req) => {
     const messages = gmailData.messages || []
     console.log(`📧 Found ${messages.length} potential account emails`)
 
-    // 6. Extract company names from emails
-    const companies = new Map() // Use Map to track first_seen date
+    // Extract company names from emails
+    const companies = new Map()
 
-    for (const msg of messages.slice(0, 50)) { // Limit to 50 for performance
+    for (const msg of messages.slice(0, 50)) {
       try {
         const emailResponse = await fetch(
           `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`,
@@ -96,7 +80,6 @@ serve(async (req) => {
 
         const emailData = await emailResponse.json()
         
-        // Extract from and date headers
         let fromHeader = ''
         let receivedDate = null
         
@@ -105,16 +88,13 @@ serve(async (req) => {
           if (header.name === 'Date') receivedDate = header.value
         }
 
-        // Extract company name from "From" header
         let companyName = ''
         
-        // Try pattern: "Company Name <no-reply@company.com>"
         const fromMatch = fromHeader.match(/"?([^"<]+)"?\s*</)
         if (fromMatch) {
           companyName = fromMatch[1].trim()
         }
         
-        // Try domain extraction
         if (!companyName) {
           const domainMatch = fromHeader.match(/@([\w\-]+\.\w+)/)
           if (domainMatch) {
@@ -125,7 +105,6 @@ serve(async (req) => {
 
         if (!companyName || companyName.length < 2) continue
 
-        // Store company with first seen date
         if (!companies.has(companyName)) {
           companies.set(companyName, {
             name: companyName,
@@ -140,14 +119,13 @@ serve(async (req) => {
 
     console.log(`🏢 Extracted ${companies.size} unique companies`)
 
-    // 7. Save discovered accounts to database
+    // Save discovered accounts to database
     const savedAccounts = []
     for (const [name, data] of companies) {
-      // Check if account already exists
       const { data: existing } = await supabase
         .from('discovered_accounts')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', user_id)
         .eq('company_name', name)
         .maybeSingle()
 
@@ -155,7 +133,7 @@ serve(async (req) => {
         const { data: inserted, error: insertError } = await supabase
           .from('discovered_accounts')
           .insert({
-            user_id: user.id,
+            user_id: user_id,
             company_name: name,
             signup_date: data.first_seen.toISOString(),
             status: 'pending'
