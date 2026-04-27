@@ -10,6 +10,8 @@ export default function AccountCleanup() {
   const [scanning, setScanning] = useState(false)
   const [filter, setFilter] = useState('pending')
   const [scanStatus, setScanStatus] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [selectedAccount, setSelectedAccount] = useState(null)
 
   useEffect(() => {
     fetchAccounts()
@@ -34,13 +36,48 @@ export default function AccountCleanup() {
   }
 
   const checkForOAuthRedirect = async () => {
-  const params = new URLSearchParams(window.location.search)
-  
-  if (params.get('scan') === 'start') {
-    console.log('🔄 OAuth redirect detected, fetching token...')
-    window.history.replaceState({}, '', '/cleanup')
-    setScanStatus('Connected! Scanning your email...')
+    const params = new URLSearchParams(window.location.search)
     
+    if (params.get('scan') === 'start') {
+      console.log('🔄 OAuth redirect detected, fetching token...')
+      window.history.replaceState({}, '', '/cleanup')
+      setScanStatus('Connected! Scanning your email...')
+      
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        setScanStatus('Error: Please log in again')
+        return
+      }
+
+      try {
+        const tokenResponse = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-gmail-token`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              user_id: session.user.id
+            })
+          }
+        )
+        
+        const tokenData = await tokenResponse.json()
+        
+        if (tokenData.access_token) {
+          await startEmailScanWithToken(tokenData.access_token)
+        } else {
+          setScanStatus('Error: Could not retrieve Gmail access')
+        }
+      } catch (error) {
+        console.error('Error getting token:', error)
+        setScanStatus('Error: Failed to connect to Gmail')
+      }
+    }
+  }
+
+  const startEmailScanWithToken = async (accessToken) => {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) {
       setScanStatus('Error: Please log in again')
@@ -48,70 +85,35 @@ export default function AccountCleanup() {
     }
 
     try {
-      // Fetch the stored Gmail token - now sending user_id in body
-      const tokenResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-gmail-token`,
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-email-accounts`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            user_id: session.user.id
+            user_id: session.user.id,
+            access_token: accessToken
           })
         }
       )
+
+      const result = await response.json()
+      console.log('Scan result:', result)
       
-      const tokenData = await tokenResponse.json()
-      
-      if (tokenData.access_token) {
-        await startEmailScanWithToken(tokenData.access_token)
+      if (response.ok && result.success) {
+        setScanStatus(`✓ Found ${result.accounts_found} accounts!`)
+        await fetchAccounts()
+        setTimeout(() => setScanStatus(null), 3000)
       } else {
-        setScanStatus('Error: Could not retrieve Gmail access')
+        setScanStatus('Error: ' + (result.error || 'Unknown error'))
       }
     } catch (error) {
-      console.error('Error getting token:', error)
-      setScanStatus('Error: Failed to connect to Gmail')
+      console.error('Scan error:', error)
+      setScanStatus('Error: Could not scan email')
     }
   }
-}
-  const startEmailScanWithToken = async (accessToken) => {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) {
-    setScanStatus('Error: Please log in again')
-    return
-  }
-
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scan-email-accounts`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          user_id: session.user.id,
-          access_token: accessToken
-        })
-      }
-    )
-
-    const result = await response.json()
-    console.log('Scan result:', result)
-    
-    if (response.ok && result.success) {
-      setScanStatus(`✓ Found ${result.accounts_found} accounts!`)
-      await fetchAccounts()
-      setTimeout(() => setScanStatus(null), 3000)
-    } else {
-      setScanStatus('Error: ' + (result.error || 'Unknown error'))
-    }
-  } catch (error) {
-    console.error('Scan error:', error)
-    setScanStatus('Error: Could not scan email')
-  }
-}
 
   const startEmailScan = async () => {
     setScanning(true)
@@ -163,10 +165,37 @@ export default function AccountCleanup() {
     }
   }
 
+  const openDeleteModal = (account) => {
+    setSelectedAccount(account)
+    setShowDeleteModal(true)
+  }
+
+  const confirmDeletion = async () => {
+    if (!selectedAccount) return
+    
+    await updateAccountStatus(selectedAccount.id, 'auto_delete')
+    
+    if (selectedAccount.deletion_url) {
+      window.open(selectedAccount.deletion_url, '_blank')
+    } else {
+      window.open(`https://www.google.com/search?q=how+to+delete+${encodeURIComponent(selectedAccount.company_name)}+account`, '_blank')
+    }
+    
+    setShowDeleteModal(false)
+    
+    setTimeout(() => {
+      alert(`Deletion guide opened for ${selectedAccount.company_name}.\n\nFollow the steps to complete deletion, then click "Mark Done" on the account.`)
+    }, 500)
+  }
+
+  const markAsDeleted = async (account) => {
+    await updateAccountStatus(account.id, 'deleted')
+  }
+
   const getStatusBadge = (status) => {
     switch(status) {
       case 'keep': return <span style={{ color: '#44ff44' }}>[ KEEP ]</span>
-      case 'auto_delete': return <span style={{ color: '#ff4444' }}>[ DELETE ]</span>
+      case 'auto_delete': return <span style={{ color: '#ff4444' }}>[ QUEUED ]</span>
       case 'deleted': return <span style={{ color: '#444' }}>[ DELETED ]</span>
       case 'pending': return <span style={{ color: '#ffaa44' }}>[ REVIEW ]</span>
       default: return <span style={{ color: '#666' }}>[ UNKNOWN ]</span>
@@ -176,6 +205,7 @@ export default function AccountCleanup() {
   const pendingCount = accounts.filter(a => a.status === 'pending').length
   const keepCount = accounts.filter(a => a.status === 'keep').length
   const deleteCount = accounts.filter(a => a.status === 'auto_delete').length
+  const deletedCount = accounts.filter(a => a.status === 'deleted').length
 
   const filteredAccounts = accounts.filter(a => {
     if (filter === 'all') return true
@@ -214,7 +244,7 @@ export default function AccountCleanup() {
       {/* Stats */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '15px',
         marginBottom: '25px'
       }}>
@@ -227,8 +257,12 @@ export default function AccountCleanup() {
           <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>TO KEEP</div>
         </div>
         <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '20px', textAlign: 'center' }}>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ff4444', ...MONO }}>{deleteCount}</div>
-          <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>TO DELETE</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ffaa44', ...MONO }}>{pendingCount}</div>
+          <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>TO REVIEW</div>
+        </div>
+        <div style={{ background: '#050505', border: '1px solid #1a1a1a', padding: '20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#ff4444', ...MONO }}>{deleteCount + deletedCount}</div>
+          <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>DELETING/DELETED</div>
         </div>
       </div>
 
@@ -267,7 +301,7 @@ export default function AccountCleanup() {
       {/* Filters */}
       {accounts.length > 0 && (
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          {['pending', 'keep', 'auto_delete', 'all'].map(f => (
+          {['pending', 'keep', 'auto_delete', 'deleted', 'all'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -311,6 +345,9 @@ export default function AccountCleanup() {
                   {account.company_name}
                 </span>
                 {getStatusBadge(account.status)}
+                {account.deletion_url && account.status === 'pending' && (
+                  <span style={{ color: '#44ff44', fontSize: '0.6rem', ...MONO }}>✓ DELETION GUIDE AVAILABLE</span>
+                )}
               </div>
               {account.signup_date && (
                 <div style={{ color: '#444', fontSize: '0.7rem', ...MONO }}>
@@ -338,7 +375,7 @@ export default function AccountCleanup() {
                     KEEP
                   </button>
                   <button
-                    onClick={() => updateAccountStatus(account.id, 'auto_delete')}
+                    onClick={() => openDeleteModal(account)}
                     style={{
                       background: 'transparent',
                       border: '1px solid #ff4444',
@@ -372,12 +409,46 @@ export default function AccountCleanup() {
                 </button>
               )}
               {account.status === 'auto_delete' && (
+                <>
+                  <button
+                    onClick={() => markAsDeleted(account)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #44ff44',
+                      color: '#44ff44',
+                      padding: '6px 14px',
+                      cursor: 'pointer',
+                      fontSize: '0.7rem',
+                      ...MONO,
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    MARK DONE
+                  </button>
+                  <button
+                    onClick={() => updateAccountStatus(account.id, 'pending')}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid #333',
+                      color: '#666',
+                      padding: '6px 14px',
+                      cursor: 'pointer',
+                      fontSize: '0.7rem',
+                      ...MONO,
+                      letterSpacing: '1px'
+                    }}
+                  >
+                    CANCEL
+                  </button>
+                </>
+              )}
+              {account.status === 'deleted' && (
                 <button
                   onClick={() => updateAccountStatus(account.id, 'pending')}
                   style={{
                     background: 'transparent',
                     border: '1px solid #333',
-                    color: '#ffaa44',
+                    color: '#666',
                     padding: '6px 14px',
                     cursor: 'pointer',
                     fontSize: '0.7rem',
@@ -385,7 +456,7 @@ export default function AccountCleanup() {
                     letterSpacing: '1px'
                   }}
                 >
-                  CANCEL
+                  RESTORE
                 </button>
               )}
             </div>
@@ -415,35 +486,90 @@ export default function AccountCleanup() {
         </div>
       )}
 
-      {/* Delete All Button */}
-      {deleteCount > 0 && (
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedAccount && (
         <div style={{
-          marginTop: '25px',
-          padding: '20px',
-          background: '#0a0a0a',
-          border: '1px solid #ff4444',
-          textAlign: 'center'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.95)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(4px)'
         }}>
-          <div style={{ color: '#ff4444', ...MONO, marginBottom: '10px' }}>
-            {deleteCount} accounts marked for deletion
-          </div>
-          <button
-            style={{
-              background: '#ff4444',
-              border: 'none',
-              color: '#fff',
-              padding: '10px 24px',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              ...MONO,
-              letterSpacing: '2px',
-              fontWeight: '700'
-            }}
-          >
-            DELETE ALL {deleteCount} ACCOUNTS
-          </button>
-          <div style={{ color: '#444', fontSize: '0.65rem', ...MONO, marginTop: '10px' }}>
-            Accounts will be queued and processed automatically
+          <div style={{
+            background: '#0a0a0a',
+            border: '1px solid #ff4444',
+            padding: '30px',
+            maxWidth: '500px',
+            width: '90%'
+          }}>
+            <div style={{ color: '#ff4444', ...MONO, fontSize: '1.2rem', marginBottom: '20px' }}>
+              DELETE ACCOUNT
+            </div>
+            <div style={{ color: '#fff', ...MONO, marginBottom: '20px' }}>
+              Are you sure you want to delete your <strong>{selectedAccount.company_name}</strong> account?
+            </div>
+            
+            {selectedAccount.deletion_url && (
+              <div style={{
+                background: '#050505',
+                border: '1px solid #333',
+                padding: '15px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ color: '#44ff44', ...MONO, fontSize: '0.7rem', marginBottom: '10px' }}>
+                  DELETION GUIDE
+                </div>
+                <div style={{ color: '#888', ...MONO, fontSize: '0.75rem', marginBottom: '10px' }}>
+                  1. Click "Open Deletion Page" below
+                  <br />
+                  2. Follow the instructions on the website
+                  <br />
+                  3. Return here and click "MARK DONE" when complete
+                </div>
+                {selectedAccount.deletion_instructions && (
+                  <div style={{ color: '#666', ...MONO, fontSize: '0.7rem', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #222' }}>
+                    ℹ️ {selectedAccount.deletion_instructions}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid #333',
+                  color: '#666',
+                  padding: '8px 20px',
+                  cursor: 'pointer',
+                  ...MONO,
+                  fontSize: '0.75rem'
+                }}
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={confirmDeletion}
+                style={{
+                  background: '#ff4444',
+                  border: 'none',
+                  color: '#fff',
+                  padding: '8px 20px',
+                  cursor: 'pointer',
+                  ...MONO,
+                  fontSize: '0.75rem'
+                }}
+              >
+                OPEN DELETION PAGE
+              </button>
+            </div>
           </div>
         </div>
       )}
