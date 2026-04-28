@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
-import BreachChecker from './BreachChecker'
 import DataBrokers from './DataBrokers'
-import BigTech from './BigTech'
-import TrackerScanner from './TrackerScanner'
 import EyeTransition from '../components/EyeTransition'
 import StabTransition from '../components/StabTransition'
 import CursorGlitch from '../components/CursorGlitch'
@@ -13,9 +10,7 @@ import PageGlitch from '../components/PageGlitch'
 import Redacted from '../components/Redacted'
 import NavClock from '../components/NavClock'
 import MFASetup from '../components/MFASetup'
-import DarkWebMonitor from '../components/DarkWebMonitor'
 import SecureNote from '../components/SecureNote'
-import AccountCleanup from '../components/AccountCleanup'
 
 const TOTAL_BROKERS = 116  // ← Updated from 52 to 116
 
@@ -208,12 +203,8 @@ export default function Dashboard() {
         <div className="nav-center">
           {[
             { id: 'dashboard', label: 'Aliases'         },
-            { id: 'breach',    label: 'Breach Checker'  },
             { id: 'brokers',   label: 'Data Brokers'    },
-            { id: 'bigtech',   label: 'Big Tech'        },
-            { id: 'tracker',   label: 'Tracker Scanner' },
              { id: 'secure', label: 'Secure Notes' },
-             { id: 'cleanup', label: 'Cleanup' },
           ].map(link => (
             <span
               key={link.id}
@@ -263,18 +254,10 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {activePage === 'breach' ? (
-        <BreachChecker />
+      {activePage === 'secure' ? (
+        <SecureNote />
       ) : activePage === 'brokers' ? (
         <DataBrokers onRemovalSent={refreshProfile} />
-      ) : activePage === 'bigtech' ? (
-        <BigTech />
-      ) : activePage === 'tracker' ? (
-        <TrackerScanner />
-        ) : activePage === 'secure' ? (
-  <SecureNote />
-  ) : activePage === 'cleanup' ? (
-  <AccountCleanup />
       ) : (
         <div className="dash-container">
           <div className="dash-header">
