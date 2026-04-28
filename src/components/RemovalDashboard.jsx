@@ -867,7 +867,7 @@ export default function RemovalDashboard() {
                         { label: 'Method', value: a.method || 'email' },
                         { label: 'Date Sent', value: new Date(a.sent_at).toLocaleString() },
                         { label: 'Delivered', value: a.delivered_at ? new Date(a.delivered_at).toLocaleString() : 'Awaiting...' },
-                        { label: 'Opened', value: a.opened_at ? new Date(a.opened_at).toLocaleString() : 'Not yet' },
+                        { label: 'Opened', value: a.opened_at ? new Date(a.opened_at).toLocaleString() : 'Unknown' },
                         { label: 'Next Follow-up', value: a.next_follow_up ? new Date(a.next_follow_up).toLocaleDateString() : 'N/A' },
                         { label: 'Follow-up Count', value: a.follow_up_count || 0 },
                         { label: 'Email ID', value: a.email_id ? a.email_id.substring(0, 16) + '...' : 'N/A' },
