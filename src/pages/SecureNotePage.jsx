@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import TypewriterText from '../components/TypewriterText'
 import Redacted from '../components/Redacted'
@@ -6,25 +7,23 @@ import Redacted from '../components/Redacted'
 const MONO = { fontFamily: "'Share Tech Mono', monospace" }
 
 export default function SecureNotePage() {
+  const { id } = useParams()
   const [decrypting, setDecrypting] = useState(true)
   const [decryptedMessage, setDecryptedMessage] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const path = window.location.pathname
     const hash = window.location.hash
-    
-    const noteId = path.split('/secure-note/')[1]
     const keyMatch = hash.match(/key=([^&]+)/)
+    const key = keyMatch ? keyMatch[1] : null
     
-    if (noteId && keyMatch) {
-      const key = keyMatch[1]
-      decryptNote(noteId, key)
+    if (id && key) {
+      decryptNote(id, key)
     } else {
       setError('Invalid note link')
       setDecrypting(false)
     }
-  }, [])
+  }, [id])
 
   const decryptNote = async (noteId, keyBase64) => {
     try {
@@ -65,10 +64,10 @@ export default function SecureNotePage() {
       const plaintext = decoder.decode(decrypted)
       setDecryptedMessage(plaintext)
 
-      // Mark as read
+      // Delete the note after successful decryption (self-destruct)
       await supabase
         .from('secure_notes')
-        .update({ read: true })
+        .delete()
         .eq('id', noteId)
 
     } catch (err) {

@@ -1,154 +1,286 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { supabase } from '../supabase'
-import TypewriterText from '../components/TypewriterText'
-import Redacted from '../components/Redacted'
+import TypewriterText from './TypewriterText'
+import Redacted from './Redacted'
 
 const MONO = { fontFamily: "'Share Tech Mono', monospace" }
 
-export default function SecureNotePage() {
-  const [decrypting, setDecrypting] = useState(true)
-  const [decryptedMessage, setDecryptedMessage] = useState(null)
-  const [error, setError] = useState(null)
+export default function SecureNote() {
+  const [message, setMessage] = useState('')
+  const [title, setTitle] = useState('')
+  const [burnAfterRead, setBurnAfterRead] = useState(true)
+  const [expiresIn, setExpiresIn] = useState('7')
+  const [generatedLink, setGeneratedLink] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const path = window.location.pathname
-    const hash = window.location.hash
-    
-    const noteId = path.split('/secure-note/')[1]
-    const keyMatch = hash.match(/key=([^&]+)/)
-    
-    if (noteId && keyMatch) {
-      const key = keyMatch[1]
-      decryptNote(noteId, key)
-    } else {
-      setError('Invalid note link')
-      setDecrypting(false)
+  const generateSecureNote = async () => {
+    if (!message.trim()) {
+      alert('Please enter a message')
+      return
     }
-  }, [])
 
-  const decryptNote = async (noteId, keyBase64) => {
+    setLoading(true)
+    setGeneratedLink(null)
+
     try {
-      // Fetch encrypted note from Supabase
-      const { data: note, error } = await supabase
-        .from('secure_notes')
-        .select('encrypted_data, iv')
-        .eq('id', noteId)
-        .single()
-
-      if (error || !note) {
-        setError('Note not found or already destroyed')
-        setDecrypting(false)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('Please log in to create secure notes')
+        setLoading(false)
         return
       }
 
-      // Convert key from base64 to CryptoKey
-      const keyBytes = Uint8Array.from(atob(keyBase64), c => c.charCodeAt(0))
-      const cryptoKey = await window.crypto.subtle.importKey(
-        'raw',
-        keyBytes,
-        { name: 'AES-GCM' },
-        false,
-        ['decrypt']
-      )
-
-      // Decrypt
-      const encryptedBytes = Uint8Array.from(atob(note.encrypted_data), c => c.charCodeAt(0))
-      const iv = Uint8Array.from(atob(note.iv), c => c.charCodeAt(0))
+      // Generate random ID
+      const noteId = crypto.randomUUID()
       
-      const decrypted = await window.crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        cryptoKey,
-        encryptedBytes
+      // Generate encryption key
+      const key = await window.crypto.subtle.generateKey(
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt']
       )
-
-      const decoder = new TextDecoder()
-      const plaintext = decoder.decode(decrypted)
-      setDecryptedMessage(plaintext)
-
-      // ✅ DELETE the note after successful decryption (self-destruct)
-      const { error: deleteError } = await supabase
+      
+      // Export key to base64 for sharing
+      const rawKey = await window.crypto.subtle.exportKey('raw', key)
+      const keyBase64 = btoa(String.fromCharCode(...new Uint8Array(rawKey)))
+      
+      // Generate random IV
+      const iv = window.crypto.getRandomValues(new Uint8Array(12))
+      const ivBase64 = btoa(String.fromCharCode(...iv))
+      
+      // Encrypt message
+      const encoder = new TextEncoder()
+      const encodedMessage = encoder.encode(message)
+      
+      const encrypted = await window.crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        encodedMessage
+      )
+      
+      const encryptedBase64 = btoa(String.fromCharCode(...new Uint8Array(encrypted)))
+      
+      // Calculate expiration
+      const expiresAt = new Date()
+      expiresAt.setDate(expiresAt.getDate() + parseInt(expiresIn))
+      
+      // Save to Supabase
+      const { error } = await supabase
         .from('secure_notes')
-        .delete()
-        .eq('id', noteId)
-
-      if (deleteError) {
-        console.error('Failed to delete note:', deleteError)
-      }
-
+        .insert({
+          id: noteId,
+          user_id: user.id,
+          title: title || 'Untitled Note',
+          encrypted_data: encryptedBase64,
+          iv: ivBase64,
+          expires_at: burnAfterRead ? null : expiresAt.toISOString(),
+          read: false
+        })
+      
+      if (error) throw error
+      
+      // Generate shareable link
+      const shareUrl = `${window.location.origin}/secure-note/${noteId}#key=${keyBase64}`
+      setGeneratedLink(shareUrl)
+      
+      // Clear form
+      setMessage('')
+      setTitle('')
+      
     } catch (err) {
-      console.error('Decryption failed:', err)
-      setError('Failed to decrypt note. It may have been tampered with or already destroyed.')
+      console.error('Failed to create note:', err)
+      alert('Failed to create secure note')
     }
-    setDecrypting(false)
+    
+    setLoading(false)
   }
 
-  if (decrypting) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px', background: '#000', minHeight: '100vh' }}>
-        <div style={{ color: '#fff', fontFamily: MONO, fontSize: '1.2rem', marginBottom: '20px' }}>
-          DECRYPTING NOTE...
-        </div>
-        <div style={{ color: '#333', fontFamily: MONO }}>
-          This may take a moment
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px', background: '#000', minHeight: '100vh' }}>
-        <div style={{ color: '#ff4444', fontFamily: MONO, fontSize: '1.2rem', marginBottom: '20px' }}>
-          ⚠ ERROR
-        </div>
-        <div style={{ color: '#666', fontFamily: MONO }}>
-          {error}
-        </div>
-      </div>
-    )
+  const copyLink = () => {
+    if (generatedLink) {
+      navigator.clipboard.writeText(generatedLink)
+      alert('Link copied to clipboard!')
+    }
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', padding: '40px' }}>
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '30px' }}>
-          <TypewriterText text="SECURE NOTE" style={MONO} />
-          <p style={{ color: '#444', fontFamily: MONO, marginTop: '10px' }}>
-            This message has been <Redacted>decrypted locally</Redacted> in your browser
-          </p>
+    <div className="tool-container">
+      <div className="tool-header">
+        <TypewriterText text="SECURE NOTES" style={MONO} />
+        <p className="tool-sub">
+          Create <Redacted>self-destructing</Redacted> encrypted messages that burn after reading
+        </p>
+      </div>
+
+      <div style={{
+        background: 'rgba(0,0,0,0.75)',
+        border: '1px solid #1a1a1a',
+        padding: '30px',
+        marginBottom: '25px'
+      }}>
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ color: '#444', fontSize: '0.7rem', fontFamily: MONO, letterSpacing: '2px', display: 'block', marginBottom: '8px' }}>
+            TITLE (OPTIONAL)
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g., Backup Codes for iCloud"
+            style={{
+              width: '100%',
+              background: '#000',
+              border: '1px solid #222',
+              color: '#fff',
+              padding: '12px',
+              fontSize: '0.85rem',
+              fontFamily: MONO,
+              outline: 'none'
+            }}
+          />
         </div>
 
-        <div style={{
-          background: 'rgba(0,0,0,0.75)',
-          border: '1px solid #1a1a1a',
-          padding: '40px',
-          marginBottom: '20px'
-        }}>
-          <pre style={{
-            color: '#fff',
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ color: '#444', fontSize: '0.7rem', fontFamily: MONO, letterSpacing: '2px', display: 'block', marginBottom: '8px' }}>
+            MESSAGE
+          </label>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your secure message here... (encrypted locally before sending)"
+            rows={6}
+            style={{
+              width: '100%',
+              background: '#000',
+              border: '1px solid #222',
+              color: '#fff',
+              padding: '12px',
+              fontSize: '0.85rem',
+              fontFamily: MONO,
+              outline: 'none',
+              resize: 'vertical'
+            }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ color: '#444', fontSize: '0.7rem', fontFamily: MONO, letterSpacing: '2px', display: 'block', marginBottom: '8px' }}>
+            OPTIONS
+          </label>
+          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#555', fontFamily: MONO, fontSize: '0.8rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={burnAfterRead}
+                onChange={(e) => setBurnAfterRead(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+              Burn after reading (recommended)
+            </label>
+            
+            {!burnAfterRead && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: '#444', fontFamily: MONO, fontSize: '0.7rem' }}>Expires in:</span>
+                <select
+                  value={expiresIn}
+                  onChange={(e) => setExpiresIn(e.target.value)}
+                  style={{
+                    background: '#000',
+                    border: '1px solid #222',
+                    color: '#fff',
+                    padding: '6px 12px',
+                    fontFamily: MONO,
+                    fontSize: '0.8rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="1">1 day</option>
+                  <option value="3">3 days</option>
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30">30 days</option>
+                </select>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          onClick={generateSecureNote}
+          disabled={loading || !message.trim()}
+          style={{
+            width: '100%',
+            background: '#fff',
+            border: 'none',
+            color: '#000',
+            padding: '14px',
+            fontSize: '0.85rem',
             fontFamily: MONO,
-            fontSize: '0.9rem',
-            whiteSpace: 'pre-wrap',
-            wordWrap: 'break-word',
-            margin: 0
-          }}>
-            {decryptedMessage}
-          </pre>
-        </div>
+            letterSpacing: '3px',
+            fontWeight: '700',
+            cursor: (loading || !message.trim()) ? 'default' : 'pointer',
+            opacity: (loading || !message.trim()) ? 0.5 : 1,
+            transition: 'all 0.2s'
+          }}
+        >
+          {loading ? 'ENCRYPTING & GENERATING...' : 'GENERATE SECURE LINK'}
+        </button>
+      </div>
 
+      {generatedLink && (
         <div style={{
           background: '#050505',
-          border: '1px solid #222',
-          padding: '20px',
-          textAlign: 'center'
+          border: '1px solid #00ff00',
+          padding: '25px',
+          marginTop: '20px'
         }}>
-          <div style={{ color: '#ff4444', fontFamily: MONO, marginBottom: '10px' }}>
-            ⚠ THIS NOTE HAS BEEN DESTROYED
+          <div style={{ color: '#00ff00', fontSize: '0.7rem', fontFamily: MONO, letterSpacing: '2px', marginBottom: '10px' }}>
+            ✓ SECURE LINK GENERATED
           </div>
-          <div style={{ color: '#444', fontSize: '0.75rem', fontFamily: MONO }}>
-            The encrypted copy has been deleted. No one can read this message again.
+          <div style={{
+            background: '#000',
+            border: '1px solid #1a1a1a',
+            padding: '15px',
+            marginBottom: '15px',
+            wordBreak: 'break-all',
+            fontFamily: MONO,
+            fontSize: '0.75rem',
+            color: '#888'
+          }}>
+            {generatedLink}
+          </div>
+          <button
+            onClick={copyLink}
+            style={{
+              background: 'transparent',
+              border: '1px solid #00ff00',
+              color: '#00ff00',
+              padding: '10px 20px',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontFamily: MONO,
+              letterSpacing: '2px',
+              width: '100%'
+            }}
+          >
+            COPY LINK TO CLIPBOARD
+          </button>
+          <div style={{ marginTop: '15px', color: '#444', fontSize: '0.7rem', fontFamily: MONO, textAlign: 'center' }}>
+            Share this link securely (Signal, WhatsApp, etc.). The recipient does NOT need a Redactxd account.
           </div>
         </div>
+      )}
+
+      <div style={{
+        marginTop: '25px',
+        padding: '20px',
+        background: 'rgba(0,0,0,0.6)',
+        border: '1px solid #1a1a1a',
+        textAlign: 'center',
+        color: '#333',
+        fontSize: '0.7rem',
+        fontFamily: MONO
+      }}>
+        ⚡ End-to-end encrypted in your browser | Keys never touch our servers | Messages self-destruct after reading
       </div>
     </div>
   )

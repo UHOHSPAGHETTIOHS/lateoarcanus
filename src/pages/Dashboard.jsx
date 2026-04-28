@@ -212,7 +212,7 @@ export default function Dashboard() {
             { id: 'brokers',   label: 'Data Brokers'    },
             { id: 'bigtech',   label: 'Big Tech'        },
             { id: 'tracker',   label: 'Tracker Scanner' },
-             { id: 'secure-note', label: 'Secure Notes' },
+             { id: 'secure', label: 'Secure Notes' },
              { id: 'cleanup', label: 'Cleanup' },
           ].map(link => (
             <span
@@ -271,7 +271,7 @@ export default function Dashboard() {
         <BigTech />
       ) : activePage === 'tracker' ? (
         <TrackerScanner />
-        ) : activePage === 'secure-note' ? (
+        ) : activePage === 'secure' ? (
   <SecureNote />
   ) : activePage === 'cleanup' ? (
   <AccountCleanup />

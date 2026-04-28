@@ -1,12 +1,15 @@
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import App from './App'
 import SecureNotePage from './pages/SecureNotePage'
 import './index.css'
 
-const path = window.location.pathname
-
-if (path.startsWith('/secure-note/')) {
-  createRoot(document.getElementById('root')).render(<SecureNotePage />)
-} else {
-  createRoot(document.getElementById('root')).render(<App />)
-}
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/secure-note/:id" element={<SecureNotePage />} />
+      <Route path="*" element={<App />} />
+    </Routes>
+  </BrowserRouter>
+)
