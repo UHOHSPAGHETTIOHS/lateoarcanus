@@ -11,6 +11,7 @@ import Redacted from '../components/Redacted'
 import NavClock from '../components/NavClock'
 import MFASetup from '../components/MFASetup'
 import SecureNote from '../components/SecureNote'
+import Shop from '../components/Shop'
 
 const TOTAL_BROKERS = 116  // ← Updated from 52 to 116
 
@@ -205,17 +206,31 @@ export default function Dashboard() {
             { id: 'dashboard', label: 'Aliases'         },
             { id: 'brokers',   label: 'Data Brokers'    },
              { id: 'secure', label: 'Secure Notes' },
+             { id: 'shop', label: 'Shop' },
+             
           ].map(link => (
+            
             <span
               key={link.id}
               className={`nav-link ${activePage === link.id ? 'active' : ''} ${glitchingLink === link.id ? 'glitch' : ''}`}
               data-text={link.label}
               onClick={() => navigateTo(link.id)}
+              
             >
               {link.label}
             </span>
           ))}
+          {/* 👇 ADD THE ADMIN LINK HERE, AFTER THE MAP */}
+  {user?.email === 'dawsonmsmith@protonmail.com' && (
+    <span
+      className="nav-link"
+      onClick={() => navigateTo('admin')}
+    >
+      Admin
+    </span>
+  )}
         </div>
+        
         <div className="nav-right">
           <NavClock />
           <span style={{
@@ -258,6 +273,10 @@ export default function Dashboard() {
         <SecureNote />
       ) : activePage === 'brokers' ? (
         <DataBrokers onRemovalSent={refreshProfile} />
+        ) : activePage === 'shop' ? (
+  <Shop />
+  ) : activePage === 'admin' ? (
+  <AdminProducts />
       ) : (
         <div className="dash-container">
           <div className="dash-header">
